@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open m8ec STM32CubeMX project [STM32H750]",
+            "group": "none",
+            "type": "shell",
+            "linux": {
+                "command": "/mnt/c/Program\\ Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe STM32H750.ioc"
+            },
+            "presentation": {
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}
