@@ -60,7 +60,11 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_qspi.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c \
-Core/Src/system_stm32h7xx.c  
+Core/Src/system_stm32h7xx.c  \
+Core/Src/Dev_Inf.c \
+Core/Src/Loader_Src.c \
+Core/Src/syscalls.c \
+Core/Src/sysmem.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -145,12 +149,12 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32H750VBTx_FLASH.ld
+LDSCRIPT = linker.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref#-Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
