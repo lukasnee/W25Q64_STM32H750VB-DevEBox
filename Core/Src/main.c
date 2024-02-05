@@ -56,7 +56,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 #include <string.h>
-#define SECTORS_COUNT 100
+
 /* USER CODE END 0 */
 
 /**
@@ -97,48 +97,30 @@ int main(void)
     MX_QUADSPI_Init();
     /* USER CODE BEGIN 2 */
 
-    CSP_QUADSPI_Init();
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    uint8_t buffer_test[MEMORY_SECTOR_SIZE];
-    for (uint32_t var = 0; var < MEMORY_SECTOR_SIZE; var++)
-    {
-        buffer_test[var] = (var & 0xff);
-    }
-    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
-    {
-        if (CSP_QSPI_EraseSector(var * MEMORY_SECTOR_SIZE,
-                                 (var + 1) * (MEMORY_SECTOR_SIZE - 1)) != HAL_OK)
-        {
-            while (1)
-                ; // breakpoint - error detected
-        }
-        if (CSP_QSPI_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE,
-                                 sizeof(buffer_test)) != HAL_OK)
-        {
-            while (1)
-                ; // breakpoint - error detected
-        }
-    }
+    CSP_QUADSPI_Init();
 
     if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK)
     {
         while (1)
             ; // breakpoint - error detected
     }
-
-    uint8_t firstValue = *(uint8_t *)(0x90000000 + 0 * MEMORY_SECTOR_SIZE);
-
-    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
-    {
-        if (memcmp(buffer_test,
-                   (uint8_t *)(0x90000000 + var * MEMORY_SECTOR_SIZE),
-                   MEMORY_SECTOR_SIZE) != HAL_OK)
-        {
-            while (1)
-                ; // breakpoint - error detected - otherwise QSPI works properly
-        }
-    }
-
+    const int testResult = memcmp((void *)QSPI_BASE, (void *)QSPI_BASE, 1);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, testResult == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    SCB_DisableDCache();
+    SCB_DisableICache();
+    SysTick->CTRL = 0;
+    void (*xip)(void) = (void (*)(void))(*(__IO uint32_t *)(QSPI_BASE + sizeof(uint32_t)));
+    __set_MSP(*(__IO uint32_t *)QSPI_BASE);
+    xip();
+    // should never reach here
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
     /* USER CODE END 2 */
 
     /* Infinite loop */
