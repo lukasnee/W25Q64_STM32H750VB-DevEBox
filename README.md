@@ -14,9 +14,21 @@ They made it much easier to create a loader for STM32H750VB DevEBox board varian
 > Prebuilt loader is available in the `build` folder.
 
 ```bash
-make
-mv build/STM32H750VB.elf build/W25Q64_STM32H750VB-DevEBox.stldr
+make VARIANT=ext_loader
+mv build/ext_loader.elf build/W25Q64_STM32H750VB-DevEBox.stldr
 ```
+
+## Variants
+
+There are three build variants available:
+
+- `ext_loader` - external loader firmware for use with STM32CubeProgrammer. **This is the default variant.**
+
+- `ext_flash_xip` - Execute In Place (XIP) the QSPI flash memory. This variant sets up the QSPI flash memory and jumps to the application base address in the QSPI flash memory.
+
+- `int_ram` - Load the application from the QSPI flash memory to the internal RAM and jump to the application base address in the internal RAM.
+
+
 
 # Installing
 

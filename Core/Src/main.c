@@ -57,6 +57,10 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 #include <string.h>
 
+#ifdef VARIANT_EXT_LOADER
+#warning "VARIANT_EXT_LOADER"
+#endif
+
 #ifdef VARIANT_INT_RAM
 #warning "VARIANT_INT_RAM"
 #endif
@@ -65,6 +69,9 @@ void SystemClock_Config(void);
 #warning "VARIANT_EXT_FLASH_XIP"
 #endif
 
+#ifdef VARIANT_EXT_LOADER
+#define SECTORS_COUNT 100
+#endif
 /* USER CODE END 0 */
 
 /**
@@ -107,11 +114,51 @@ int main(void)
 
     CSP_QUADSPI_Init();
 
+#ifdef VARIANT_EXT_LOADER
+    uint8_t buffer_test[MEMORY_SECTOR_SIZE];
+    for (uint32_t var = 0; var < MEMORY_SECTOR_SIZE; var++)
+    {
+        buffer_test[var] = (var & 0xff);
+    }
+    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
+    {
+        if (CSP_QSPI_EraseSector(var * MEMORY_SECTOR_SIZE,
+                                 (var + 1) * (MEMORY_SECTOR_SIZE - 1)) != HAL_OK)
+        {
+            while (1)
+                ; // breakpoint - error detected
+        }
+        if (CSP_QSPI_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE,
+                                 sizeof(buffer_test)) != HAL_OK)
+        {
+            while (1)
+                ; // breakpoint - error detected
+        }
+    }
+#endif
+
     if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK)
     {
         while (1)
             ; // breakpoint - error detected
     }
+
+#ifdef VARIANT_EXT_LOADER
+    uint8_t firstValue = *(uint8_t *)(0x90000000 + 0 * MEMORY_SECTOR_SIZE);
+    (void)firstValue;
+
+    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
+    {
+        if (memcmp(buffer_test,
+                   (uint8_t *)(0x90000000 + var * MEMORY_SECTOR_SIZE),
+                   MEMORY_SECTOR_SIZE) != HAL_OK)
+        {
+            while (1)
+                ; // breakpoint - error detected - otherwise QSPI works properly
+        }
+    }
+#endif
+
 #if defined(VARIANT_INT_RAM)
     memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, 256 * 1024);
 #define APP_BASE D1_AXISRAM_BASE
@@ -119,6 +166,7 @@ int main(void)
 #define APP_BASE QSPI_BASE
 #endif
 
+#ifndef VARIANT_EXT_LOADER
     const int testResult = memcmp((void *)QSPI_BASE, (void *)QSPI_BASE, 1);
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin = GPIO_PIN_1;
@@ -135,6 +183,7 @@ int main(void)
     jump_app();
     // should never reach here
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+#endif
 
     /* USER CODE END 2 */
 

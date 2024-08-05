@@ -13,7 +13,7 @@
 ######################################
 # variant
 ######################################
-VARIANT = ext_flash_xip
+VARIANT = ext_loader
 
 ######################################
 # building variables
@@ -60,6 +60,14 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_qspi.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c \
 Core/Src/system_stm32h7xx.c
+
+ifeq ($(VARIANT), ext_loader)
+C_SOURCES += \
+Core/Src/Dev_Inf.c \
+Core/Src/Loader_Src.c \
+Core/Src/syscalls.c \
+Core/Src/sysmem.c
+endif
 
 # ASM sources
 ASM_SOURCES =  \
@@ -114,6 +122,10 @@ C_DEFS =  \
 -DSTM32H750xx
 
 ifdef VARIANT
+ifeq ($(VARIANT), ext_loader)
+C_DEFS += -DVARIANT_EXT_LOADER
+TARGET := ext_loader
+endif
 ifeq ($(VARIANT), ext_flash_xip)
 C_DEFS += -DVARIANT_EXT_FLASH_XIP
 TARGET := bootloader_ext_flash_xip
@@ -155,6 +167,10 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
+ifeq ($(VARIANT), ext_loader)
+LDSCRIPT = ext_loader.ld
+endif
+
 ifeq ($(VARIANT), ext_flash_xip)
 LDSCRIPT = ext_flash_xip.ld
 endif
