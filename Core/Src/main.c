@@ -57,6 +57,14 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 #include <string.h>
 
+#ifdef VARIANT_INT_RAM
+#warning "VARIANT_INT_RAM"
+#endif
+
+#ifdef VARIANT_EXT_FLASH_XIP
+#warning "VARIANT_EXT_FLASH_XIP"
+#endif
+
 /* USER CODE END 0 */
 
 /**
@@ -97,13 +105,6 @@ int main(void)
     MX_QUADSPI_Init();
     /* USER CODE BEGIN 2 */
 
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_1;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     CSP_QUADSPI_Init();
 
     if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK)
@@ -111,16 +112,30 @@ int main(void)
         while (1)
             ; // breakpoint - error detected
     }
+#if defined(VARIANT_INT_RAM)
+    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, 256 * 1024);
+#define APP_BASE D1_AXISRAM_BASE
+#elif defined(VARIANT_EXT_FLASH_XIP)
+#define APP_BASE QSPI_BASE
+#endif
+
     const int testResult = memcmp((void *)QSPI_BASE, (void *)QSPI_BASE, 1);
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, testResult == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
     SCB_DisableDCache();
     SCB_DisableICache();
     SysTick->CTRL = 0;
-    void (*xip)(void) = (void (*)(void))(*(__IO uint32_t *)(QSPI_BASE + sizeof(uint32_t)));
-    __set_MSP(*(__IO uint32_t *)QSPI_BASE);
-    xip();
+    void (*jump_app)(void) = (void (*)(void))(*(__IO uint32_t *)(APP_BASE + sizeof(uint32_t)));
+    __set_MSP(*(__IO uint32_t *)APP_BASE);
+    jump_app();
     // should never reach here
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+
     /* USER CODE END 2 */
 
     /* Infinite loop */

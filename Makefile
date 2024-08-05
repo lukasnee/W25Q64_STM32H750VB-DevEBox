@@ -11,10 +11,9 @@
 # ------------------------------------------------
 
 ######################################
-# target
+# variant
 ######################################
-TARGET = STM32H750VB
-
+VARIANT = ext_flash_xip
 
 ######################################
 # building variables
@@ -114,6 +113,17 @@ C_DEFS =  \
 -DUSE_HAL_DRIVER \
 -DSTM32H750xx
 
+ifdef VARIANT
+ifeq ($(VARIANT), ext_flash_xip)
+C_DEFS += -DVARIANT_EXT_FLASH_XIP
+TARGET := bootloader_ext_flash_xip
+endif
+ifeq ($(VARIANT), int_ram)
+C_DEFS += -DVARIANT_INT_RAM
+TARGET := bootloader_int_ram
+endif
+endif
+
 
 # AS includes
 AS_INCLUDES = 
@@ -145,7 +155,14 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32H750VBTx_FLASH.ld
+ifeq ($(VARIANT), ext_flash_xip)
+LDSCRIPT = ext_flash_xip.ld
+endif
+
+ifeq ($(VARIANT), int_ram)
+LDSCRIPT = int_ram.ld
+endif
+
 
 # libraries
 LIBS = -lc -lm -lnosys 
