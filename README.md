@@ -24,13 +24,13 @@ There are three build variants available:
 
 - `ext_loader` - external loader firmware for use with STM32CubeProgrammer. **This is the default variant.**
 
+- `int_ram` - Load an image from the QSPI flash to the internal RAM and jump execution to it.
+
 - `ext_flash_xip` - Execute In Place (XIP) the QSPI flash memory. This variant sets up the QSPI flash memory and jumps to the application base address in the QSPI flash memory.
 
-- `int_ram` - Load the application from the QSPI flash memory to the internal RAM and jump to the application base address in the internal RAM.
+## ``ext_loader``
 
-
-
-# Installing
+### Installation
 
 1. Copy the `.stldr` file to the `ExternalLoader` folder of the STM32CubeProgrammer installation directory.
 
@@ -40,7 +40,21 @@ There are three build variants available:
 
 2. Reopen STM32CubeProgrammer and you should see the loader in the list.
 
-# References
+## ``int_ram``
+
+### Building
+    
+    ```bash
+    make VARIANT=int_ram
+    ```
+
+> Image may be flashed with `st-flash --format ihex --reset write build/bootloader_int_ram.hex` and debugged with `F5` in VSCode.
+
+## ``ext_flash_xip``
+
+TODO
+
+## References
 
 - Project based on: <https://github.com/manoloaterol/MCUDEV_DevEBox_H743-W25Q64-EL>
 - Knowledge source: <https://github.com/osos11-Git/STM32H743VIT6_Boring_TECH_QSPI>
