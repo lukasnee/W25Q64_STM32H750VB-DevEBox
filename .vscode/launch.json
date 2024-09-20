@@ -15,11 +15,11 @@
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
                 "${workspaceRoot}/build/bootloader_int_ram.elf",
-                "${workspaceRoot}/../m8ec/.build/platform/STM32H750/STM32H750",
+                "${workspaceRoot}/../../2/m8ec/.build/platform/STM32H750/STM32H750",
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
-            // "breakAfterReset": true,
+            "breakAfterReset": true,
             "runToEntryPoint": "main"
             // "showDevDebugOutput": "raw",
         },
