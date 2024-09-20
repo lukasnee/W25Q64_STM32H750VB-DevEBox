@@ -72,6 +72,25 @@ void SystemClock_Config(void);
 #ifdef VARIANT_EXT_LOADER
 #define SECTORS_COUNT 100
 #endif
+
+typedef struct
+{
+    uint32_t initial_sp; // Stack Pointer
+    uint32_t initial_pc; // Program Counter
+} vtor_t;
+
+void jump_to_app(const uint32_t address)
+{
+    __disable_irq();
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL = 0;
+    SCB->VTOR = address;
+    vtor_t *app_vtor = (vtor_t *)address;
+    /* Jump, used asm to avoid stack optimization */
+    asm("msr msp, %0; bx %1;" : : "r"(app_vtor->initial_sp), "r"(app_vtor->initial_pc));
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -157,30 +176,27 @@ int main(void)
                 ; // breakpoint - error detected - otherwise QSPI works properly
         }
     }
-#endif
-
-#if defined(VARIANT_INT_RAM)
-    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, 256 * 1024);
-#define APP_BASE D1_AXISRAM_BASE
-#elif defined(VARIANT_EXT_FLASH_XIP)
-#define APP_BASE QSPI_BASE
-#endif
-
-#ifndef VARIANT_EXT_LOADER
-    const int testResult = memcmp((void *)QSPI_BASE, (void *)QSPI_BASE, 1);
+#else
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin = GPIO_PIN_1;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, testResult == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
-    SCB_DisableDCache();
-    SCB_DisableICache();
-    SysTick->CTRL = 0;
-    void (*jump_app)(void) = (void (*)(void))(*(__IO uint32_t *)(APP_BASE + sizeof(uint32_t)));
-    __set_MSP(*(__IO uint32_t *)APP_BASE);
-    jump_app();
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+
+#if defined(VARIANT_INT_RAM)
+    // load the application from QSPI to D1_AXISRAM_BASE and verify the CRC
+    const uint32_t section_size = 512 * 1024;
+    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, section_size);
+    HAL_QSPI_DeInit(&hqspi);
+    HAL_DeInit();
+#define APP_BASE D1_AXISRAM_BASE
+#elif defined(VARIANT_EXT_FLASH_XIP)
+#define APP_BASE QSPI_BASE
+#endif
+
+    jump_to_app(APP_BASE);
     // should never reach here
     HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
 #endif
