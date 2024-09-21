@@ -13,7 +13,7 @@
 ######################################
 # variant
 ######################################
-VARIANT = ext_loader
+VARIANT ?= ext_loader
 
 ######################################
 # building variables
@@ -28,7 +28,7 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+BUILD_DIR = .build/$(VARIANT)
 
 ######################################
 # source
@@ -130,13 +130,13 @@ ifeq ($(VARIANT), ext_loader)
 C_DEFS += -DVARIANT_EXT_LOADER
 TARGET := ext_loader
 endif
-ifeq ($(VARIANT), ext_flash_xip)
-C_DEFS += -DVARIANT_EXT_FLASH_XIP
-TARGET := bootloader_ext_flash_xip
+ifeq ($(VARIANT), bl_qspiflash)
+C_DEFS += -DVARIANT_BL_QSPIFLASH
+TARGET := bl_qspiflash
 endif
-ifeq ($(VARIANT), int_ram)
-C_DEFS += -DVARIANT_INT_RAM
-TARGET := bootloader_int_ram
+ifeq ($(VARIANT), bl_iram)
+C_DEFS += -DVARIANT_BL_IRAM
+TARGET := bl_iram
 endif
 endif
 
@@ -173,15 +173,15 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 #######################################
 # link script
 ifeq ($(VARIANT), ext_loader)
-LDSCRIPT = ext_loader.ld
+LDSCRIPT = linker/ext_loader.ld
 endif
 
-ifeq ($(VARIANT), ext_flash_xip)
-LDSCRIPT = ext_flash_xip.ld
+ifeq ($(VARIANT), bl_qspiflash)
+LDSCRIPT = linker/bl_qspiflash.ld
 endif
 
-ifeq ($(VARIANT), int_ram)
-LDSCRIPT = int_ram.ld
+ifeq ($(VARIANT), bl_iram)
+LDSCRIPT = linker/bl_iram.ld
 endif
 
 

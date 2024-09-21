@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "m8ec",
+            "name": "bl_iram",
             "type": "cortex-debug",
             "request": "attach",
             "servertype": "openocd",
@@ -14,7 +14,7 @@
             ],
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
-                "${workspaceRoot}/build/bootloader_int_ram.elf",
+                "${workspaceRoot}/.build/bl_iram/bl_iram.elf",
                 "${workspaceRoot}/../../2/m8ec/.build/platform/STM32H750/STM32H750",
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
