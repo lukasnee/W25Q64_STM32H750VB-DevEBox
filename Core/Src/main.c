@@ -73,8 +73,7 @@ void SystemClock_Config(void);
 #define SECTORS_COUNT 100
 #endif
 
-typedef struct
-{
+typedef struct {
     uint32_t initial_sp; // Stack Pointer
     uint32_t initial_pc; // Program Counter
 } vtor_t;
@@ -130,8 +129,7 @@ uint32_t crc32(const void *buf, size_t size)
     uint32_t crc;
 
     crc = ~0U;
-    while (size--)
-    {
+    while (size--) {
         crc = crc32_tab[(crc ^ *p++) & 0xFF] ^ (crc >> 8);
     }
     return crc ^ ~0U;
@@ -146,7 +144,9 @@ void jump_to_app(const uint32_t address)
     SCB->VTOR = address;
     vtor_t *app_vtor = (vtor_t *)address;
     /* Jump, used asm to avoid stack optimization */
-    asm("msr msp, %0; bx %1;" : : "r"(app_vtor->initial_sp), "r"(app_vtor->initial_pc));
+    asm("msr msp, %0; bx %1;"
+        :
+        : "r"(app_vtor->initial_sp), "r"(app_vtor->initial_pc));
 }
 
 /* USER CODE END 0 */
@@ -168,9 +168,12 @@ int main(void)
     /* Enable D-Cache---------------------------------------------------------*/
     // SCB_EnableDCache();
 
-    /* MCU Configuration--------------------------------------------------------*/
+    /* MCU
+     * Configuration--------------------------------------------------------*/
 
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    /* Reset of all peripherals, Initializes the Flash interface and the
+     * Systick.
+     */
     HAL_Init();
 
     /* USER CODE BEGIN Init */
@@ -193,29 +196,25 @@ int main(void)
 
 #ifdef VARIANT_EXT_LOADER
     uint8_t buffer_test[MEMORY_SECTOR_SIZE];
-    for (uint32_t var = 0; var < MEMORY_SECTOR_SIZE; var++)
-    {
+    for (uint32_t var = 0; var < MEMORY_SECTOR_SIZE; var++) {
         buffer_test[var] = (var & 0xff);
     }
-    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
-    {
+    for (uint32_t var = 0; var < SECTORS_COUNT; var++) {
         if (CSP_QSPI_EraseSector(var * MEMORY_SECTOR_SIZE,
-                                 (var + 1) * (MEMORY_SECTOR_SIZE - 1)) != HAL_OK)
-        {
+                                 (var + 1) * (MEMORY_SECTOR_SIZE - 1)) !=
+            HAL_OK) {
             while (1)
                 ; // breakpoint - error detected
         }
         if (CSP_QSPI_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE,
-                                 sizeof(buffer_test)) != HAL_OK)
-        {
+                                 sizeof(buffer_test)) != HAL_OK) {
             while (1)
                 ; // breakpoint - error detected
         }
     }
 #endif
 
-    if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK)
-    {
+    if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
             ; // breakpoint - error detected
     }
@@ -224,12 +223,10 @@ int main(void)
     uint8_t firstValue = *(uint8_t *)(0x90000000 + 0 * MEMORY_SECTOR_SIZE);
     (void)firstValue;
 
-    for (uint32_t var = 0; var < SECTORS_COUNT; var++)
-    {
+    for (uint32_t var = 0; var < SECTORS_COUNT; var++) {
         if (memcmp(buffer_test,
                    (uint8_t *)(0x90000000 + var * MEMORY_SECTOR_SIZE),
-                   MEMORY_SECTOR_SIZE) != HAL_OK)
-        {
+                   MEMORY_SECTOR_SIZE) != HAL_OK) {
             while (1)
                 ; // breakpoint - error detected - otherwise QSPI works properly
         }
@@ -249,10 +246,8 @@ int main(void)
     const uint32_t expected_crc = crc32((void *)QSPI_BASE, section_size);
     memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, section_size);
     const uint32_t actual_crc = crc32((void *)D1_AXISRAM_BASE, section_size);
-    if (expected_crc != actual_crc)
-    {
-        while (1)
-        {
+    if (expected_crc != actual_crc) {
+        while (1) {
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
             HAL_Delay(100);
             HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
@@ -275,8 +270,7 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+    while (1) {
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
@@ -301,15 +295,13 @@ void SystemClock_Config(void)
      */
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
-    {
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
     }
 
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
 
-    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY))
-    {
+    while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
     }
 
     /** Initializes the RCC Oscillators according to the specified parameters
@@ -327,14 +319,15 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2;
     RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
     RCC_OscInitStruct.PLL.PLLFRACN = 0;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         Error_Handler();
     }
 
     /** Initializes the CPU, AHB and APB buses clocks
      */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2 |
+                                  RCC_CLOCKTYPE_D3PCLK1 | RCC_CLOCKTYPE_D1PCLK1;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
@@ -343,8 +336,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
     RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
         Error_Handler();
     }
 }
@@ -360,10 +352,10 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
+    /* User can add his own implementation to report the HAL error return state
+     */
     __disable_irq();
-    while (1)
-    {
+    while (1) {
     }
     /* USER CODE END Error_Handler_Debug */
 }
@@ -379,8 +371,9 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* User can add his own implementation to report the file name and line
+       number, ex: printf("Wrong parameters value: file %s on line %d\r\n",
+       file, line) */
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
