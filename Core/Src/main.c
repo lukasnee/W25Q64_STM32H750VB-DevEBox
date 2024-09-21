@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "quadspi.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -160,20 +161,12 @@ int main(void)
     /* USER CODE BEGIN 1 */
 
     /* USER CODE END 1 */
-    /* Enable the CPU Cache */
-
-    /* Enable I-Cache---------------------------------------------------------*/
-    // SCB_EnableICache();
-
-    /* Enable D-Cache---------------------------------------------------------*/
-    // SCB_EnableDCache();
 
     /* MCU
      * Configuration--------------------------------------------------------*/
 
     /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick.
-     */
+     * Systick. */
     HAL_Init();
 
     /* USER CODE BEGIN Init */
@@ -190,6 +183,7 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_QUADSPI_Init();
+    MX_UART4_Init();
     /* USER CODE BEGIN 2 */
 
     CSP_QUADSPI_Init();
@@ -232,13 +226,6 @@ int main(void)
         }
     }
 #else
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
-    GPIO_InitStruct.Pin = GPIO_PIN_1;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
 
 #if defined(VARIANT_INT_RAM)
     // load the application from QSPI to D1_AXISRAM_BASE and verify the CRC
@@ -263,7 +250,6 @@ int main(void)
 
     jump_to_app(APP_BASE);
     // should never reach here
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
 #endif
 
     /* USER CODE END 2 */

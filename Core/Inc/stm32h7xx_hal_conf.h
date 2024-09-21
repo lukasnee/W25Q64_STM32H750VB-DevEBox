@@ -76,7 +76,7 @@ extern "C" {
 /* #define HAL_SPI_MODULE_ENABLED   */
 /* #define HAL_SWPMI_MODULE_ENABLED   */
 /* #define HAL_TIM_MODULE_ENABLED   */
-/* #define HAL_UART_MODULE_ENABLED   */
+#define HAL_UART_MODULE_ENABLED
 /* #define HAL_USART_MODULE_ENABLED   */
 /* #define HAL_IRDA_MODULE_ENABLED   */
 /* #define HAL_SMARTCARD_MODULE_ENABLED   */
@@ -161,10 +161,9 @@ extern "C" {
  * source frequency, this source is inserted directly through I2S_CKIN pad.
  */
 #if !defined(EXTERNAL_CLOCK_VALUE)
-#define EXTERNAL_CLOCK_VALUE                                                   \
-    12288000UL /*!< Value of the External clock in                             \
-                  Hz*/
-#endif         /* EXTERNAL_CLOCK_VALUE */
+#define EXTERNAL_CLOCK_VALUE 12288000UL /*!< Value of the External clock in    \
+                                           Hz*/
+#endif                                  /* EXTERNAL_CLOCK_VALUE */
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
    ===  you can define the HSE value in your toolchain compiler preprocessor. */
