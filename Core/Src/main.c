@@ -62,12 +62,12 @@ void SystemClock_Config(void);
 #warning "VARIANT_EXT_LOADER"
 #endif
 
-#ifdef VARIANT_INT_RAM
-#warning "VARIANT_INT_RAM"
+#ifdef VARIANT_BL_IRAM
+#warning "VARIANT_BL_IRAM"
 #endif
 
-#ifdef VARIANT_EXT_FLASH_XIP
-#warning "VARIANT_EXT_FLASH_XIP"
+#ifdef VARIANT_BL_QSPIFLASH
+#warning "VARIANT_BL_QSPIFLASH"
 #endif
 
 #ifdef VARIANT_EXT_LOADER
@@ -227,7 +227,7 @@ int main(void)
     }
 #else
 
-#if defined(VARIANT_INT_RAM)
+#if defined(VARIANT_BL_IRAM)
     // load the application from QSPI to D1_AXISRAM_BASE and verify the CRC
     const uint32_t section_size = 512 * 1024;
     const uint32_t expected_crc = crc32((void *)QSPI_BASE, section_size);
@@ -244,7 +244,7 @@ int main(void)
     HAL_QSPI_DeInit(&hqspi);
     HAL_DeInit();
 #define APP_BASE D1_AXISRAM_BASE
-#elif defined(VARIANT_EXT_FLASH_XIP)
+#elif defined(VARIANT_BL_QSPIFLASH)
 #define APP_BASE QSPI_BASE
 #endif
 
