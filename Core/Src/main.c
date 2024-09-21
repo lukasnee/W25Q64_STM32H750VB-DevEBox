@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "comm/comm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -226,6 +226,8 @@ int main(void)
         }
     }
 #else
+
+    comm_init();
 
 #if defined(VARIANT_BL_IRAM)
     // load the application from QSPI to D1_AXISRAM_BASE and verify the CRC

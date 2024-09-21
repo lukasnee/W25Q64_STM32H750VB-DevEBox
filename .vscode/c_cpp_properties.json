@@ -2,7 +2,18 @@
     "configurations": [
         {
             "name": "Linux",
-            "defines": ["VARIANT_BL_IRAM"],
+            "includePath": [
+                "Core/Inc",
+                "Drivers/STM32H7xx_HAL_Driver/Inc",
+                "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy",
+                "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
+                "Drivers/CMSIS/Include",
+                "extern/min/target",
+                "Core/comm/include"
+            ],
+            "defines": [
+                "VARIANT_BL_IRAM"
+            ],
             "intelliSenseMode": "linux-gcc-x64"
         }
     ],

@@ -65,6 +65,9 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c \
 Core/Src/system_stm32h7xx.c \
 extern/min/target/min.c
 
+CXX_SOURCES = \
+Core/comm/comm.cpp
+
 ifeq ($(VARIANT), ext_loader)
 C_SOURCES += \
 Core/Src/Dev_Inf.c \
@@ -151,7 +154,8 @@ C_INCLUDES =  \
 -IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32H7xx/Include \
 -IDrivers/CMSIS/Include \
--Iextern/min/target
+-Iextern/min/target \
+-ICore/comm/include
 
 
 # compile gcc flags
