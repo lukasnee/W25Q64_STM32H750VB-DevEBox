@@ -19,9 +19,9 @@
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
-            "breakAfterReset": true,
-            "runToEntryPoint": "main"
+            // "runToEntryPoint": "main",
             // "showDevDebugOutput": "raw",
+            "breakAfterReset": true
         },
     ]
 }
