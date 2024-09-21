@@ -1,0 +1,3 @@
+[submodule "extern/min"]
+	path = extern/min
+	url = https://github.com/min-protocol/min.git
