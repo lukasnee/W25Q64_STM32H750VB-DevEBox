@@ -12,6 +12,24 @@
                 "focus": false,
                 "panel": "shared"
             }
-        }
+        },
+        {
+            "label": "make VARIANT=bl_iram",
+            "group": "build",
+            "type": "shell",
+            "command": "make VARIANT=bl_iram",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex",
+            "group": "build",
+            "type": "shell",
+            "command": "st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
     ]
 }
