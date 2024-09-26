@@ -1,3 +1,6 @@
 [submodule "extern/min"]
 	path = extern/min
 	url = https://github.com/min-protocol/min.git
+[submodule "extern/nanopb"]
+	path = extern/nanopb
+	url = https://github.com/nanopb/nanopb.git
