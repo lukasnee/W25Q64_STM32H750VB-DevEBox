@@ -62,6 +62,11 @@ make VARIANT=bl_iram
 st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex
 ```
 
+### Flashing firmware to QSPI FLASH
+
+```bash
+```
+
 ### Debugging
 
 The firmware can be debugged in VSCode using ST-LINK/V2 debugger via SWD, openOCD and `cortex-debug` extension. Modify `bl_iram` target in [launch.json](.vscode/launch.json) as needed and start debugging.
