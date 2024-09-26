@@ -1,0 +1,28 @@
+syntax = "proto3";
+import "nanopb.proto";
+
+enum COMM_CMD {
+    DOWNLINK_DATA = 0;
+    INTERCEPT = 1;
+}
+
+enum COMM_RES {
+    OK = 0;
+    UNKNOWN_ERROR = 1;
+    ERASE_ERROR = 2;
+    WRITE_ERROR = 3;
+    INVALID_SIZE = 4;
+}
+
+message CommBasicRp {
+    uint32 result = 1;
+}
+
+message CommInterceptRq {
+    uint32 intercept = 1; // 0 = off, 1 = on
+}
+
+message CommChunkRq {
+    uint32 chunk_id = 1;
+    bytes chunk_buff = 2 [(nanopb).max_size = 128, (nanopb).fixed_length = true];
+}

@@ -41,9 +41,17 @@ There are three build variants available:
 
 ## Variant ``bl_iram``
 
+### Prerequisites
+
+```bash
+sudo apt-get update && sudo apt-get -y upgrade
+pip install protobuf==3.20.*
+```
+
 ### Building
 
 ```bash
+git submodule update --recursive --init
 make VARIANT=bl_iram
 ```
 
@@ -51,6 +59,11 @@ make VARIANT=bl_iram
 
 ```bash
 st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex
+```
+
+### Flashing firmware to QSPI FLASH
+
+```bash
 ```
 
 ### Debugging
