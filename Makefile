@@ -157,7 +157,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32H7xx/Include \
 -IDrivers/CMSIS/Include \
 -Iextern/min/target \
--ICore/comm/include
+-ICore/comm/include \
+-Iextern/nanopb
 
 CXX_INCLUDES = $(C_INCLUDES) \
 -I/usr/arm-none-eabi/include/c++/11.2.0

@@ -9,7 +9,8 @@
                 "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
                 "Drivers/CMSIS/Include",
                 "extern/min/target",
-                "Core/comm/include"
+                "Core/comm/include",
+                "extern/nanopb"
             ],
             "defines": [
                 "VARIANT_BL_IRAM"
