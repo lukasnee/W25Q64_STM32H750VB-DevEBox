@@ -63,7 +63,11 @@ Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c \
 Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c \
 Core/Src/system_stm32h7xx.c \
-extern/min/target/min.c
+extern/min/target/min.c \
+extern/nanopb/pb_common.c \
+extern/nanopb/pb_decode.c \
+extern/nanopb/pb_encode.c \
+Core/comm/comm.pb.c
 
 CXX_SOURCES = \
 Core/comm/comm.cpp
@@ -151,6 +155,7 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
+-I.\
 -ICore/Inc \
 -IDrivers/STM32H7xx_HAL_Driver/Inc \
 -IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy \

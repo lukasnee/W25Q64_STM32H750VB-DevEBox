@@ -41,9 +41,18 @@ There are three build variants available:
 
 ## Variant ``bl_iram``
 
+### Prerequisites
+
+```bash
+sudo apt-get update
+pip install protobuf==3.20.*
+sudo apt-get -y install nanopb
+```
+
 ### Building
 
 ```bash
+nanopb_generator.py Core/comm/comm.proto 
 make VARIANT=bl_iram
 ```
 
