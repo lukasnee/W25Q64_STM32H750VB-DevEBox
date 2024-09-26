@@ -1,2 +1,4 @@
 .build/
 __pycache__/
+Core/comm/comm.pb.*
+tools/comm/comm_pb2.py

@@ -1,28 +1,38 @@
 syntax = "proto3";
-import "nanopb.proto";
 
 enum COMM_CMD {
-    DOWNLINK_DATA = 0;
-    INTERCEPT = 1;
+    QSPI_WRITE = 0;
+    QSPI_ERASE = 2;
+    QSPI_MASS_ERASE = 5;
+    BOOTLOADER_INTERCEPT = 10;
 }
 
 enum COMM_RES {
     OK = 0;
-    UNKNOWN_ERROR = 1;
-    ERASE_ERROR = 2;
-    WRITE_ERROR = 3;
-    INVALID_SIZE = 4;
+    ERR_UNKNOWN_CMD = 1;
+    ERR_PARSE_RQ = 2;
+    ERR_QSPI_ABORT = 3;
+    ERR_QSPI_WRITE = 4;
+    ERR_QSPI_ERASE = 6;
 }
 
-message CommBasicRp {
+message CommCmdBasicRp {
     uint32 result = 1;
 }
 
-message CommInterceptRq {
-    uint32 intercept = 1; // 0 = off, 1 = on
+message CommCmdQspiWriteRq {
+    uint32 addr = 1;
+    bytes buff = 2;
 }
 
-message CommChunkRq {
-    uint32 chunk_id = 1;
-    bytes chunk_buff = 2 [(nanopb).max_size = 128, (nanopb).fixed_length = true];
+message CommCmdQspiEraseRq {
+    uint32 addr = 1;
+    uint32 size = 2;
+}
+
+message CommCmdQspiMassEraseRq {
+}
+
+message CommCmdBootloaderInterceptRq {
+    uint32 intercept = 1; // 0 = off, 1 = on
 }

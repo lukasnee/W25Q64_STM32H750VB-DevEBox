@@ -36,6 +36,7 @@ BUILD_DIR = .build/$(VARIANT)
 # C sources
 C_SOURCES =  \
 Core/Src/main.c \
+Core/Src/syscalls.c \
 Core/Src/gpio.c \
 Core/Src/usart.c \
 Core/Src/quadspi.c \
@@ -76,7 +77,6 @@ ifeq ($(VARIANT), ext_loader)
 C_SOURCES += \
 Core/Src/Dev_Inf.c \
 Core/Src/Loader_Src.c \
-Core/Src/syscalls.c \
 Core/Src/sysmem.c
 endif
 
@@ -219,6 +219,12 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 #######################################
 # build the application
 #######################################
+
+# build proto
+Core/comm/comm.pb.c: Core/comm/comm.proto Core/comm/comm.options
+	extern/nanopb/generator/nanopb_generator.py Core/comm/comm.proto
+	extern/nanopb/generator/protoc --proto_path=Core/comm/ comm.proto --python_out=tools/comm/
+
 # list of objects
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
@@ -252,7 +258,7 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@	
 	
 $(BUILD_DIR):
-	mkdir $@		
+	mkdir $@ -p
 
 #######################################
 # clean up
