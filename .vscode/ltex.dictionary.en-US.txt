@@ -1,0 +1,10 @@
+QSPI
+UART
+XIP
+TODO
+littlefs
+AXI-SRAM
+VSCode
+openOCD
+json
+AXI-SRAM

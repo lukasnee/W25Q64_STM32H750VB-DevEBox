@@ -1,80 +1,47 @@
 
+# W25Q64_STM32H750VB-DevEBox
+
 ![W25Q64_STM32H750VB-DevEBox board](docs/W25Q64_STM32H750VB-DevEBox.jpg)
 
-# About
+---
 
-W25Q64 QSPI FLASH memory STM32H750VB-DevEBox External Loader for STM32CubeProgrammer.
+This is an experimental project aimed to unleash the full potential of a cheap
+STM32H750VB-DevEBox development board with W25Q64 QSPI FLASH and be a great
+platform for any kind of embedded project. The project is in the early stage and
+still finding its shape. It incorporates and demonstrates some great open-source
+libraries that you can find referenced below.
 
-Kudos to [@manoloaterol](https://github.com/manoloaterol) and
-[@osos11-Git](https://github.com/osos11-Git) for the external loader knowledge in their open-source projects - see [References](#References).
+> Project is developed on WSL Ubuntu.
 
-# Building
+## Features
 
-> Prebuilt loader is available in the `.build` folder.
+- `comm`: A simple Point-to-Point communication protocol for accessing the
+  on-board QSPI FLASH via UART from a host computer in Python. `comm` is based
+  on the [`min`](https://github.com/min-protocol/min) and
+  [`nanopb`](https://github.com/nanopb/nanopb).
+- [`bl_iram`](docs/bl_iram.md): Bootloader that loads a program from the QSPI
+  flash to the internal D1 domain 512 KiB AXI-SRAM and executes it. Bootloader
+  on startup runs the `comm` service that allows you to upload a new firmware
+  via UART from a host computer.
+- [`bl_qspiflash`](docs/bl_qspiflash.md): Bootloader that Executes In Place
+  (XIP) program stored on QSPI flash memory. Bootloader on startup runs the
+  `comm` service that allows you to upload a new firmware via UART from a host
+  computer.
+- [`ext_loader`](docs/ext_loader.md): Special [STM32 External
+  Loader](https://github.com/STMicroelectronics/stm32-external-loader) firmware
+  for this board for accessing the on-board W25Q64 QSPI FLASH memory in
+  [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
-```bash
-make VARIANT=ext_loader
-mv build/ext_loader.elf build/W25Q64_STM32H750VB-DevEBox.stldr
-```
+## TODO
 
-## Variants
-
-There are three build variants available:
-
-- `ext_loader` - External loader firmware for use with STM32CubeProgrammer. **This is the default variant.**
-
-- `bl_iram` - Bootloader that loads a program from the QSPI flash to the internal RAM and executes it.
-
-- `bl_qspiflash` - Bootloader that Executes In Place (XIP) program that is stored in QSPI flash memory.
-
-## Variant ``ext_loader``
-
-### Installation
-
-1. Copy the `.stldr` file to the `ExternalLoader` folder of the STM32CubeProgrammer installation directory.
-
-    ```
-    cp build\W25Q64_STM32H750VB-DevEBox.stldr C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\ExternalLoader\
-    ```
-
-2. Reopen STM32CubeProgrammer and you should see the loader in the list.
-
-## Variant ``bl_iram``
-
-### Prerequisites
-
-```bash
-sudo apt-get update && sudo apt-get -y upgrade
-pip install protobuf==3.20.*
-```
-
-### Building
-
-```bash
-git submodule update --recursive --init
-make VARIANT=bl_iram
-```
-
-### Flashing
-
-```bash
-st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex
-```
-
-### Flashing firmware to QSPI FLASH
-
-```bash
-```
-
-### Debugging
-
-The firmware can be debugged in VSCode using ST-LINK/V2 debugger via SWD, openOCD and `cortex-debug` extension. Modify `bl_iram` target in [launch.json](.vscode/launch.json) as needed and start debugging.
-
-## Variant ``bl_qspiflash``
-
-TODO: instructions
-
-## References
-
-- Part of the project (`VARIANT=ext_loader`) based on: [manoloaterol/MCUDEV_DevEBox_H743-W25Q64-EL](https://github.com/manoloaterol/MCUDEV_DevEBox_H743-W25Q64-EL)
-- A good knowledge source: [osos11-Git/STM32H743VIT6_Boring_TECH_QSPI](https://github.com/osos11-Git/STM32H743VIT6_Boring_TECH_QSPI)
+- Generalize and extract the `comm` service to a separate library.
+- Add [littlefs](https://github.com/littlefs-project/littlefs) to `bl_iram`
+  bootloader where the QSPI FLASH is used as a file system. You can access the
+  file system via the `comm` interface (UART). The bootloader expects a file
+  `app.bin` in the root directory of the file system. The bootloader will load
+  the file to the internal RAM and execute it.
+- Use CMake for building the project rather than Makefile.
+- `bl_iram` and `bl_qspiflash` tests with simple demo application binaries.
+- Add example `.ld` linker scripts for `bl_iram` and `bl_qspiflash`
+  applications.
+- Add copies of datasheet PDFs of MCU and QSPI FLASH to the `docs` folder.
