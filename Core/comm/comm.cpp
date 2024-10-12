@@ -55,14 +55,23 @@ extern "C" uint32_t min_time_ms(void)
 
 // MIN API END
 
-void queue_basic_response(uint8_t min_id, COMM_RES res)
+static void _comm_queue_response(uint8_t min_id, const void *payload,
+                                 const pb_msgdesc_t *fields)
+{
+    uint8_t buffer[MAX_PAYLOAD];
+    pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+    pb_encode(&stream, fields, payload);
+    min_queue_frame(&min_ctx, min_id, buffer, stream.bytes_written);
+}
+
+#define comm_queue_response(type, id, payload)                                 \
+    _comm_queue_response(id, payload, type##_fields)
+
+void comm_queue_response_basic(uint8_t min_id, COMM_RES res)
 {
     CommCmdBasicRp rp = CommCmdBasicRp_init_default;
     rp.result = res;
-    uint8_t buffer[CommCmdBasicRp_size];
-    pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    pb_encode(&stream, CommCmdBasicRp_fields, &rp);
-    min_queue_frame(&min_ctx, min_id, buffer, stream.bytes_written);
+    comm_queue_response(CommCmdBasicRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
@@ -71,10 +80,10 @@ void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
     if (HAL_OK != CSP_QSPI_WriteMemory(const_cast<uint8_t *>(rq.buff.bytes),
                                        rq.addr, rq.buff.size)) {
         __set_PRIMASK(1);
-        return queue_basic_response(min_id, COMM_RES_ERR_QSPI_WRITE);
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_WRITE);
     }
     __set_PRIMASK(1);
-    return queue_basic_response(min_id, COMM_RES_OK);
+    return comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
@@ -82,10 +91,10 @@ void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
     __set_PRIMASK(0);
     if (HAL_OK != CSP_QSPI_Erase_Chip()) {
         __set_PRIMASK(1);
-        return queue_basic_response(min_id, COMM_RES_ERR_QSPI_ERASE);
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_ERASE);
     }
     __set_PRIMASK(1);
-    return queue_basic_response(min_id, COMM_RES_OK);
+    return comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
 template <typename T>
@@ -95,7 +104,7 @@ void comm_handle(const pb_msgdesc_t *fields, uint8_t min_id,
     T rq;
     pb_istream_t stream = pb_istream_from_buffer(data, size);
     if (!pb_decode(&stream, fields, &rq)) {
-        return queue_basic_response(min_id, COMM_RES_ERR_PARSE_RQ);
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_PARSE_RQ);
     }
     comm_handle(min_id, rq);
 }
@@ -117,7 +126,7 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
 #undef HANDLES
 #undef HANDLE
     default:
-        return queue_basic_response(min_id, COMM_RES_ERR_UNKNOWN_CMD);
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_UNKNOWN_CMD);
     }
 }
 
@@ -126,7 +135,7 @@ static bool intercepted = false;
 void comm_handle(uint8_t min_id, const CommCmdBootloaderInterceptRq &rq)
 {
     intercepted = rq.intercept != 0;
-    queue_basic_response(min_id, COMM_RES_OK);
+    comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
 extern "C" void comm_init()
