@@ -66,15 +66,16 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
 
 
 def comm_cmd_write_file(min_handler: MINTransportSerial, file_path: str, offset: int):
-    print(f"comm_cmd_write_file(file_path={file_path}, offset=0x{offset:08X}):")
-    WRITE_BUFF_SIZE = 128
+    print(
+        f"comm_cmd_write_file(file_path={file_path}, offset=0x{offset:08X}):")
+    MAX_BUFF_SIZE = 128
     comm_cmd_qspi_write = pb.CommCmdQspiWriteRq()
     file_size = os.path.getsize(file_path)
     comm_cmd_sector_erase(min_handler, offset, offset + file_size)
     print(f"Flashing file of size: {file_size}")
     with open(file_path, 'rb') as f:
         comm_cmd_qspi_write.addr = offset
-        write_buff = f.read(WRITE_BUFF_SIZE)
+        write_buff = f.read(MAX_BUFF_SIZE)
         comm_cmd_qspi_write.buff = write_buff
         while len(write_buff) > 0:
             print(
@@ -96,10 +97,40 @@ def comm_cmd_write_file(min_handler: MINTransportSerial, file_path: str, offset:
                     print(f"Error flashing: {pb.COMM_RES.Name(rp.result)}")
                     continue
                 comm_cmd_qspi_write.addr += len(write_buff)
-                write_buff = f.read(WRITE_BUFF_SIZE)
+                write_buff = f.read(MAX_BUFF_SIZE)
                 comm_cmd_qspi_write.buff = write_buff
                 break
         print("")
+
+        # verify
+        print("Verifying flash: ", end="")
+        f.seek(0)
+        comm_cmd_qspi_read = pb.CommCmdQspiReadRq()
+        comm_cmd_qspi_read.addr = offset
+        comm_cmd_qspi_read.len = min(file_size, MAX_BUFF_SIZE)
+        while comm_cmd_qspi_read.addr < offset + file_size:
+            print(
+                f"Verifying {comm_cmd_qspi_read.addr}/{offset + file_size} ({(comm_cmd_qspi_read.addr/(offset + file_size))*100:.2f} %)", end="\r")
+            queue_frame(min_handler, pb.COMM_CMD.QSPI_READ, comm_cmd_qspi_read)
+            frames = wait_for_frames(min_handler)
+            if not frames:
+                print("No response from bootloader")
+                continue
+            for frame in frames:
+                if frame.min_id != pb.COMM_CMD.QSPI_READ:
+                    print(
+                        f"Unexpected min_id: {pb.COMM_CMD.Name(frame.min_id)}")
+                    continue
+                rp = pb.CommCmdQspiReadRp()
+                rp.ParseFromString(frame.payload)
+                if rp.buff != f.read(len(rp.buff)):
+                    print("Verification failed at addr: 0x{:08X}".format(
+                        comm_cmd_qspi_read.addr))
+                    return False
+                comm_cmd_qspi_read.addr += len(rp.buff)
+                comm_cmd_qspi_read.len = min(
+                    file_size - comm_cmd_qspi_read.addr, MAX_BUFF_SIZE)
+                break
 
 
 def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):

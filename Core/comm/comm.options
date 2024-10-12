@@ -1,1 +1,2 @@
 CommCmdQspiWriteRq.buff max_size: 128
+CommCmdQspiReadRp.buff max_size: 128

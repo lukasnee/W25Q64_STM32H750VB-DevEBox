@@ -74,6 +74,23 @@ void comm_queue_response_basic(uint8_t min_id, COMM_RES res)
     comm_queue_response(CommCmdBasicRp, min_id, &rp);
 }
 
+void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
+{
+    CommCmdQspiReadRp rp = CommCmdQspiReadRp_init_default;
+    if (rq.len > sizeof(rp.buff.bytes)) {
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+    }
+    if ((rq.addr + rq.len) > (1 << (hqspi.Init.FlashSize + 1))) {
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+    }
+    rp.addr = rq.addr;
+    rp.buff.size = rq.len;
+    CSP_QSPI_EnableMemoryMappedMode2();
+    memcpy(rp.buff.bytes, reinterpret_cast<const void *>(QSPI_BASE + rq.addr),
+           rq.len);
+    comm_queue_response(CommCmdQspiReadRp, min_id, &rp);
+}
+
 void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
 {
     __set_PRIMASK(0);
@@ -127,6 +144,7 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
         return comm_handle<type>(type##_fields, min_id, data, size)
 #define HANDLES                                                                \
     HANDLE(COMM_CMD_QSPI_WRITE, CommCmdQspiWriteRq);                           \
+    HANDLE(COMM_CMD_QSPI_READ, CommCmdQspiReadRq);                             \
     HANDLE(COMM_CMD_QSPI_SECTOR_ERASE, CommCmdQspiSectorEraseRq);              \
     HANDLE(COMM_CMD_BOOTLOADER_INTERCEPT, CommCmdBootloaderInterceptRq);       \
     HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);
