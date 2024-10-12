@@ -86,12 +86,21 @@ void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
     return comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
+void comm_handle(uint8_t min_id, const CommCmdQspiSectorEraseRq &rq)
+{
+    if (HAL_OK != CSP_QSPI_EraseSector(rq.addr_start, rq.addr_end)) {
+        return comm_queue_response_basic(min_id,
+                                         COMM_RES_ERR_QSPI_SECTOR_ERASE);
+    }
+    return comm_queue_response_basic(min_id, COMM_RES_OK);
+}
+
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
 {
     __set_PRIMASK(0);
     if (HAL_OK != CSP_QSPI_Erase_Chip()) {
         __set_PRIMASK(1);
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_ERASE);
+        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_MASS_ERASE);
     }
     __set_PRIMASK(1);
     return comm_queue_response_basic(min_id, COMM_RES_OK);
@@ -118,6 +127,7 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
         return comm_handle<type>(type##_fields, min_id, data, size)
 #define HANDLES                                                                \
     HANDLE(COMM_CMD_QSPI_WRITE, CommCmdQspiWriteRq);                           \
+    HANDLE(COMM_CMD_QSPI_SECTOR_ERASE, CommCmdQspiSectorEraseRq);              \
     HANDLE(COMM_CMD_BOOTLOADER_INTERCEPT, CommCmdBootloaderInterceptRq);       \
     HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);
 

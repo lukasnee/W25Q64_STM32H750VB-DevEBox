@@ -58,6 +58,7 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
             rp = pb.CommCmdBasicRp()
             rp.ParseFromString(frame.payload)
             if rp.result != pb.COMM_RES.OK:
+                sleep(0.1)
                 print(f"{pb.COMM_RES.Name(rp.result)}")
                 continue
             print(f"{pb.COMM_RES.Name(rp.result)}")

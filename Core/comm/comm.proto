@@ -2,7 +2,7 @@ syntax = "proto3";
 
 enum COMM_CMD {
     QSPI_WRITE = 0;
-    QSPI_ERASE = 2;
+    QSPI_SECTOR_ERASE = 2;
     QSPI_MASS_ERASE = 5;
     BOOTLOADER_INTERCEPT = 10;
 }
@@ -13,7 +13,8 @@ enum COMM_RES {
     ERR_PARSE_RQ = 2;
     ERR_QSPI_ABORT = 3;
     ERR_QSPI_WRITE = 4;
-    ERR_QSPI_ERASE = 6;
+    ERR_QSPI_SECTOR_ERASE = 6;
+    ERR_QSPI_MASS_ERASE = 7;
 }
 
 message CommCmdBasicRp {
@@ -25,9 +26,9 @@ message CommCmdQspiWriteRq {
     bytes buff = 2;
 }
 
-message CommCmdQspiEraseRq {
-    uint32 addr = 1;
-    uint32 size = 2;
+message CommCmdQspiSectorEraseRq {
+    uint32 addr_start = 1;
+    uint32 addr_end = 2;
 }
 
 message CommCmdQspiMassEraseRq {
