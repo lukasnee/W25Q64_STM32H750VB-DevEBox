@@ -31,5 +31,14 @@
                 "$gcc"
             ]
         },
+        {
+            "label": "make VARIANT=bl_iram && st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex",
+            "group": "build",
+            "type": "shell",
+            "command": "make VARIANT=bl_iram && st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
     ]
 }

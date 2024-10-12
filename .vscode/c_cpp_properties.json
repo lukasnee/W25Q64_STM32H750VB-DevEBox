@@ -3,6 +3,7 @@
         {
             "name": "Linux",
             "includePath": [
+                "${workspaceFolder}/.",
                 "Core/Inc",
                 "Drivers/STM32H7xx_HAL_Driver/Inc",
                 "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy",
@@ -13,7 +14,8 @@
                 "extern/nanopb"
             ],
             "defines": [
-                "VARIANT_BL_IRAM"
+                "VARIANT_BL_IRAM",
+                "QUADSPI"
             ],
             "intelliSenseMode": "linux-gcc-x64"
         }

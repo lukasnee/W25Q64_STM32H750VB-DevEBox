@@ -15,7 +15,7 @@
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
                 "${workspaceRoot}/.build/bl_iram/bl_iram.elf",
-                "${workspaceRoot}/../../2/m8ec/.build/platform/STM32H750/STM32H750",
+                "${workspaceRoot}/../m8ec/.build/platform/STM32H750/STM32H750",
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
