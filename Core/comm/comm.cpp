@@ -68,10 +68,6 @@ void queue_basic_response(uint8_t min_id, COMM_RES res)
 void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
 {
     __set_PRIMASK(0);
-    if (HAL_OK != HAL_QSPI_Abort(&hqspi)) {
-        __set_PRIMASK(1);
-        return queue_basic_response(min_id, COMM_RES_ERR_QSPI_ABORT);
-    }
     if (HAL_OK != CSP_QSPI_WriteMemory(const_cast<uint8_t *>(rq.buff.bytes),
                                        rq.addr, rq.buff.size)) {
         __set_PRIMASK(1);
@@ -84,10 +80,6 @@ void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
 {
     __set_PRIMASK(0);
-    if (HAL_OK != HAL_QSPI_Abort(&hqspi)) {
-        __set_PRIMASK(1);
-        return queue_basic_response(min_id, COMM_RES_ERR_QSPI_ABORT);
-    }
     if (HAL_OK != CSP_QSPI_Erase_Chip()) {
         __set_PRIMASK(1);
         return queue_basic_response(min_id, COMM_RES_ERR_QSPI_ERASE);

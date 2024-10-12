@@ -172,6 +172,14 @@ uint8_t CSP_QUADSPI_Init(void)
 
 uint8_t CSP_QSPI_Erase_Chip(void)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
+
     QSPI_CommandTypeDef sCommand;
 
     if (QSPI_WriteEnable() != HAL_OK) {
@@ -373,6 +381,14 @@ uint8_t QSPI_Configuration(void)
 
 uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
+
     QSPI_CommandTypeDef sCommand = {0};
     HAL_StatusTypeDef ret;
 
@@ -405,6 +421,13 @@ uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address)
 uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
                              uint32_t EraseEndAddress)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
 
     QSPI_CommandTypeDef sCommand;
 
@@ -448,6 +471,13 @@ uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
 uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,
                              uint32_t buffer_size)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
 
     QSPI_CommandTypeDef sCommand;
     uint32_t end_addr, current_size, current_addr;
@@ -532,6 +562,13 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,
 
 uint8_t CSP_QSPI_EnableMemoryMappedMode(void)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
 
     QSPI_CommandTypeDef sCommand;
     QSPI_MemoryMappedTypeDef sMemMappedCfg;
@@ -567,6 +604,13 @@ uint8_t CSP_QSPI_EnableMemoryMappedMode(void)
 
 uint8_t CSP_QSPI_EnableMemoryMappedMode2(void)
 {
+    if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
+        HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
+        if (status != HAL_OK) {
+            __set_PRIMASK(1); // disable interrupts
+            return status;
+        }
+    }
 
     QSPI_CommandTypeDef sCommand;
     QSPI_MemoryMappedTypeDef sMemMappedCfg;
