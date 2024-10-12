@@ -206,14 +206,12 @@ int main(void)
                 ; // breakpoint - error detected
         }
     }
-#endif
 
     if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
             ; // breakpoint - error detected
     }
 
-#ifdef VARIANT_EXT_LOADER
     uint8_t firstValue = *(uint8_t *)(0x90000000 + 0 * MEMORY_SECTOR_SIZE);
     (void)firstValue;
 
@@ -229,20 +227,28 @@ int main(void)
 
     comm_init();
 
-#if defined(VARIANT_BL_IRAM)
-    // load the application from QSPI to D1_AXISRAM_BASE and verify the CRC
-    const uint32_t section_size = 512 * 1024;
-    const uint32_t expected_crc = crc32((void *)QSPI_BASE, section_size);
-    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, section_size);
-    const uint32_t actual_crc = crc32((void *)D1_AXISRAM_BASE, section_size);
-    if (expected_crc != actual_crc) {
-        while (1) {
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-            HAL_Delay(100);
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-            HAL_Delay(100);
-        }
+    if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
+        while (1)
+            ; // breakpoint - error detected
     }
+
+#if defined(VARIANT_BL_IRAM)
+
+    // load the application from QSPI to D1_AXISRAM_BASE
+    const uint32_t section_size = 512 * 1024;
+    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, section_size);
+
+    // Verify the CRC
+    // const uint32_t expected_crc = crc32((void *)QSPI_BASE, section_size);
+    // const uint32_t actual_crc = crc32((void *)D1_AXISRAM_BASE, section_size);
+    // if (expected_crc != actual_crc) {
+    //     while (1) {
+    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+    //         HAL_Delay(100);
+    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+    //         HAL_Delay(100);
+    //     }
+    // }
     HAL_QSPI_DeInit(&hqspi);
     HAL_DeInit();
 #define APP_BASE D1_AXISRAM_BASE
