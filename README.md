@@ -46,3 +46,7 @@ libraries that you can find referenced below.
   applications.
 - Add copies of datasheet PDFs of MCU and QSPI FLASH to the `docs` folder.
 - Pick a better name for the project.
+
+# References
+
+- [stm32-base STM32H750VB-DevEBox](https://stm32-base.org/boards/STM32H750VBT6-STM32H7XX-M.html#W25Q64JV)
