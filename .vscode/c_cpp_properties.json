@@ -11,7 +11,8 @@
                 "Drivers/CMSIS/Include",
                 "extern/min/target",
                 "Core/comm/include",
-                "extern/nanopb"
+                "extern/nanopb",
+                "extern/littlefs"
             ],
             "defines": [
                 "VARIANT_BL_IRAM",
