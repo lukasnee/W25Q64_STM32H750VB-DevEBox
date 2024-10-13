@@ -4,3 +4,6 @@
 [submodule "extern/nanopb"]
 	path = extern/nanopb
 	url = https://github.com/nanopb/nanopb.git
+[submodule "extern/littlefs"]
+	path = extern/littlefs
+	url = https://github.com/littlefs-project/littlefs.git
