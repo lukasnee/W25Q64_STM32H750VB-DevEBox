@@ -39,7 +39,7 @@ uint8_t CSP_QUADSPI_Init(void);
 uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
                              uint32_t EraseEndAddress);
 uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address);
-uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,
+uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
                              uint32_t buffer_size);
 uint8_t CSP_QSPI_EnableMemoryMappedMode(void);
 uint8_t CSP_QSPI_EnableMemoryMappedMode2(void);

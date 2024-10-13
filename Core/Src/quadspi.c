@@ -468,7 +468,7 @@ uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_WriteMemory(uint8_t *buffer, uint32_t address,
+uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
                              uint32_t buffer_size)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
