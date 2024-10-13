@@ -68,7 +68,9 @@ extern/min/target/min.c \
 extern/nanopb/pb_common.c \
 extern/nanopb/pb_decode.c \
 extern/nanopb/pb_encode.c \
-Core/comm/comm.pb.c
+Core/comm/comm.pb.c \
+extern/littlefs/lfs.c \
+extern/littlefs/lfs_util.c
 
 CXX_SOURCES = \
 Core/comm/comm.cpp
@@ -163,7 +165,8 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include \
 -Iextern/min/target \
 -ICore/comm/include \
--Iextern/nanopb
+-Iextern/nanopb \
+-Iextern/littlefs
 
 CXX_INCLUDES = $(C_INCLUDES) \
 -I/usr/arm-none-eabi/include/c++/11.2.0
