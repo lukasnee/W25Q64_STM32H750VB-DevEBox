@@ -45,3 +45,4 @@ libraries that you can find referenced below.
 - Add example `.ld` linker scripts for `bl_iram` and `bl_qspiflash`
   applications.
 - Add copies of datasheet PDFs of MCU and QSPI FLASH to the `docs` folder.
+- Pick a better name for the project.
