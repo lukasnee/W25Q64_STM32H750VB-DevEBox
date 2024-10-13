@@ -70,7 +70,8 @@ extern/nanopb/pb_decode.c \
 extern/nanopb/pb_encode.c \
 Core/comm/comm.pb.c \
 extern/littlefs/lfs.c \
-extern/littlefs/lfs_util.c
+extern/littlefs/lfs_util.c \
+Core/lfsapp/lfsapp.c
 
 CXX_SOURCES = \
 Core/comm/comm.cpp
@@ -166,7 +167,8 @@ C_INCLUDES =  \
 -Iextern/min/target \
 -ICore/comm/include \
 -Iextern/nanopb \
--Iextern/littlefs
+-Iextern/littlefs \
+-ICore/lfsapp/include
 
 CXX_INCLUDES = $(C_INCLUDES) \
 -I/usr/arm-none-eabi/include/c++/11.2.0
@@ -213,7 +215,7 @@ endif
 # libraries
 LIBS = -lc -lm -lnosys
 LIBDIR =
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

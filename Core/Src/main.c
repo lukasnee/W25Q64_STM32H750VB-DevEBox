@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "comm/comm.h"
+#include "lfsapp/lfsapp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -224,6 +225,18 @@ int main(void)
         }
     }
 #else
+
+    // test the littlefs
+    lfsapp_init();
+    lfs_file_t file;
+    lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    uint32_t boot_count = 0;
+    lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+    boot_count += 1;
+    lfs_file_rewind(&lfs, &file);
+    lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
+    lfs_file_close(&lfs, &file);
+    printf("boot_count: %ld\n", boot_count);
 
     comm_service(3000);
 
