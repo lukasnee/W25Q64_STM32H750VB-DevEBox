@@ -225,7 +225,7 @@ int main(void)
     }
 #else
 
-    comm_init();
+    comm_service(3000);
 
     if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
