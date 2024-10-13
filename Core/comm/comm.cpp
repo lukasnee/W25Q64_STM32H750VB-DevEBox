@@ -78,10 +78,12 @@ void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
 {
     CommCmdQspiReadRp rp = CommCmdQspiReadRp_init_default;
     if (rq.len > sizeof(rp.buff.bytes)) {
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+        return comm_queue_response_basic(min_id,
+                                         COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
     if ((rq.addr + rq.len) > (1 << (hqspi.Init.FlashSize + 1))) {
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+        return comm_queue_response_basic(min_id,
+                                         COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
     rp.addr = rq.addr;
     rp.buff.size = rq.len;
@@ -166,14 +168,12 @@ void comm_handle(uint8_t min_id, const CommCmdBootloaderInterceptRq &rq)
     comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
-extern "C" void comm_init()
+extern "C" void comm_service(uint32_t listen_time_ms)
 {
     min_init_context(&min_ctx, 0);
     min_transport_reset(&min_ctx, true);
-    const uint32_t initial_uptime = HAL_GetTick();
-    const uint32_t comm_intercept_time_window = 3000;
-    while (intercepted ||
-           HAL_GetTick() - initial_uptime < comm_intercept_time_window) {
+    const uint32_t initial_uptime_ms = min_time_ms();
+    while (intercepted || min_time_ms() - initial_uptime_ms < listen_time_ms) {
         uint8_t byte;
         if (HAL_UART_Receive(&huart4, &byte, sizeof(byte), 1) != HAL_OK) {
             min_poll(&min_ctx, nullptr, 0);
