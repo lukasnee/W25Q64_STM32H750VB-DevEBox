@@ -187,7 +187,7 @@ int main(void)
     MX_UART4_Init();
     /* USER CODE BEGIN 2 */
 
-    CSP_QUADSPI_Init();
+    W25Q_Init();
 
 #ifdef VARIANT_EXT_LOADER
     uint8_t buffer_test[MEMORY_SECTOR_SIZE];
@@ -195,20 +195,19 @@ int main(void)
         buffer_test[var] = (var & 0xff);
     }
     for (uint32_t var = 0; var < SECTORS_COUNT; var++) {
-        if (CSP_QSPI_EraseSector(var * MEMORY_SECTOR_SIZE,
-                                 (var + 1) * (MEMORY_SECTOR_SIZE - 1)) !=
-            HAL_OK) {
+        if (W25Q_EraseSector(var * MEMORY_SECTOR_SIZE,
+                             (var + 1) * (MEMORY_SECTOR_SIZE - 1)) != HAL_OK) {
             while (1)
                 ; // breakpoint - error detected
         }
-        if (CSP_QSPI_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE,
-                                 sizeof(buffer_test)) != HAL_OK) {
+        if (W25Q_WriteMemory(buffer_test, var * MEMORY_SECTOR_SIZE,
+                             sizeof(buffer_test)) != HAL_OK) {
             while (1)
                 ; // breakpoint - error detected
         }
     }
 
-    if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
+    if (W25Q_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
             ; // breakpoint - error detected
     }
@@ -240,7 +239,7 @@ int main(void)
 
     comm_service(3000);
 
-    if (CSP_QSPI_EnableMemoryMappedMode2() != HAL_OK) {
+    if (W25Q_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
             ; // breakpoint - error detected
     }
