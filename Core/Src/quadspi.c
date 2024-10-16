@@ -151,12 +151,12 @@ void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *qspiHandle)
 }
 
 /* USER CODE BEGIN 1 */
-uint8_t QSPI_WriteEnable(void);
-uint8_t QSPI_Configuration(void);
-uint8_t QSPI_ResetChip();
+HAL_StatusTypeDef QSPI_WriteEnable(void);
+HAL_StatusTypeDef QSPI_Configuration(void);
+HAL_StatusTypeDef QSPI_ResetChip();
 
 /* QUADSPI init function */
-uint8_t CSP_QUADSPI_Init(void)
+HAL_StatusTypeDef W25Q_Init(void)
 {
 
     if (QSPI_ResetChip() != HAL_OK) {
@@ -170,7 +170,7 @@ uint8_t CSP_QUADSPI_Init(void)
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_Erase_Chip(void)
+HAL_StatusTypeDef W25Q_Erase_Chip(void)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -209,7 +209,7 @@ uint8_t CSP_QSPI_Erase_Chip(void)
     return HAL_OK;
 }
 
-uint8_t QSPI_AutoPollingMemReady(void)
+HAL_StatusTypeDef QSPI_AutoPollingMemReady(void)
 {
 
     QSPI_CommandTypeDef sCommand = {0};
@@ -242,7 +242,7 @@ uint8_t QSPI_AutoPollingMemReady(void)
     return HAL_OK;
 }
 
-uint8_t QSPI_WriteEnable(void)
+HAL_StatusTypeDef QSPI_WriteEnable(void)
 {
     QSPI_CommandTypeDef sCommand = {0};
     QSPI_AutoPollingTypeDef sConfig = {0};
@@ -286,7 +286,7 @@ uint8_t QSPI_WriteEnable(void)
 /* Las versiones acabadas en IQ lo llevan activado por defecto, como en mi caso.
  */
 
-uint8_t QSPI_Configuration(void)
+HAL_StatusTypeDef QSPI_Configuration(void)
 {
 
     QSPI_CommandTypeDef sCommand = {0};
@@ -379,7 +379,7 @@ uint8_t QSPI_Configuration(void)
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address)
+HAL_StatusTypeDef W25Q_EraseBlock(uint32_t flash_address)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -418,8 +418,8 @@ uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address)
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
-                             uint32_t EraseEndAddress)
+HAL_StatusTypeDef W25Q_EraseSector(uint32_t EraseStartAddress,
+                                   uint32_t EraseEndAddress)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -468,8 +468,8 @@ uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
-                             uint32_t buffer_size)
+HAL_StatusTypeDef W25Q_WriteMemory(const uint8_t *buffer, uint32_t address,
+                                   uint32_t buffer_size)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -538,8 +538,8 @@ uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
         }
 
         /* Transmission of the data */
-        if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) !=
-            HAL_OK) {
+        if (HAL_QSPI_Transmit(&hqspi, (uint8_t *)buffer,
+                              HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 
             return HAL_ERROR;
         }
@@ -560,7 +560,7 @@ uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EnableMemoryMappedMode(void)
+HAL_StatusTypeDef W25Q_EnableMemoryMappedMode(void)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -602,7 +602,7 @@ uint8_t CSP_QSPI_EnableMemoryMappedMode(void)
     return HAL_OK;
 }
 
-uint8_t CSP_QSPI_EnableMemoryMappedMode2(void)
+HAL_StatusTypeDef W25Q_EnableMemoryMappedMode2(void)
 {
     if (hqspi.State == HAL_QSPI_STATE_BUSY_MEM_MAPPED) {
         HAL_StatusTypeDef status = HAL_QSPI_Abort(&hqspi);
@@ -643,7 +643,7 @@ uint8_t CSP_QSPI_EnableMemoryMappedMode2(void)
     return HAL_OK;
 }
 
-uint8_t QSPI_ResetChip()
+HAL_StatusTypeDef QSPI_ResetChip()
 {
     QSPI_CommandTypeDef sCommand = {0};
     uint32_t temp = 0;

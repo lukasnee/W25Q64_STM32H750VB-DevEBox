@@ -12,7 +12,7 @@ int lfs_qspi_flash_read(const struct lfs_config *c, lfs_block_t block,
                         lfs_off_t off, void *buffer, lfs_size_t size)
 {
     if (hqspi.State != HAL_QSPI_STATE_BUSY_MEM_MAPPED &&
-        HAL_OK != CSP_QSPI_EnableMemoryMappedMode2()) {
+        HAL_OK != W25Q_EnableMemoryMappedMode2()) {
         return LFS_ERR_IO;
     }
     const uint32_t address =
@@ -25,7 +25,7 @@ int lfs_qspi_flash_prog(const struct lfs_config *c, lfs_block_t block,
                         lfs_off_t off, const void *buffer, lfs_size_t size)
 {
     const uint32_t address = (block * c->block_size) + off;
-    if (HAL_OK != CSP_QSPI_WriteMemory(buffer, address, size)) {
+    if (HAL_OK != W25Q_WriteMemory(buffer, address, size)) {
         return LFS_ERR_IO;
     }
     return LFS_ERR_OK;
@@ -35,7 +35,7 @@ int lfs_qspi_flash_erase(const struct lfs_config *c, lfs_block_t block)
 {
     const uint32_t start_address = (block * c->block_size);
     const uint32_t end_address = start_address + c->block_size - 1;
-    if (HAL_OK != CSP_QSPI_EraseSector(start_address, end_address)) {
+    if (HAL_OK != W25Q_EraseSector(start_address, end_address)) {
         return LFS_ERR_IO;
     }
     return LFS_ERR_OK;

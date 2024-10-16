@@ -54,9 +54,9 @@ int Init(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_QUADSPI_Init();
-    CSP_QUADSPI_Init();
+    W25Q_Init();
 
-    //	if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK)
+    //	if (W25Q_EnableMemoryMappedMode() != HAL_OK)
     //		{
     //		__set_PRIMASK(1); //disable interrupts
     //		return LOADER_FAIL;
@@ -83,8 +83,8 @@ int Write(uint32_t Address, uint32_t Size, uint8_t *buffer)
         return LOADER_FAIL;
     }
 
-    if (CSP_QSPI_WriteMemory((uint8_t *)buffer, (Address & (0x0fffffff)),
-                             Size) != HAL_OK) {
+    if (W25Q_WriteMemory((uint8_t *)buffer, (Address & (0x0fffffff)), Size) !=
+        HAL_OK) {
         __set_PRIMASK(1); // disable interrupts
         return LOADER_FAIL;
     }
@@ -98,7 +98,7 @@ int Read(uint32_t Address, uint32_t Size, uint8_t *Buffer)
 
     int i = 0;
 
-    CSP_QSPI_EnableMemoryMappedMode();
+    W25Q_EnableMemoryMappedMode();
 
     // HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, RESET);
 
@@ -127,7 +127,7 @@ int SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress)
     //		return LOADER_FAIL;
     //	}
 
-    //	if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK)
+    //	if (W25Q_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK)
     //{
     //		__set_PRIMASK(1); //disable interrupts
     //		return LOADER_FAIL;
@@ -149,7 +149,7 @@ int SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress)
 
     while (EraseEndAddress >= EraseStartAddress) {
         BlockAddr = EraseStartAddress & 0x0FFFFFFF;
-        CSP_QSPI_EraseBlock(BlockAddr);
+        W25Q_EraseBlock(BlockAddr);
         if (QSPI_AutoPollingMemReady() != HAL_OK) {
             return HAL_ERROR;
         }
@@ -179,7 +179,7 @@ int MassErase(void)
         return LOADER_FAIL;
     }
 
-    if (CSP_QSPI_Erase_Chip() != HAL_OK) {
+    if (W25Q_Erase_Chip() != HAL_OK) {
         __set_PRIMASK(1); // disable interrupts
         return LOADER_FAIL;
     }
@@ -284,7 +284,7 @@ uint64_t Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size,
     uint64_t checksum;
     Size *= 4;
 
-    if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
+    if (W25Q_EnableMemoryMappedMode() != HAL_OK) {
         //		__set_PRIMASK(1); //disable interrupts
         return LOADER_FAIL;
     }

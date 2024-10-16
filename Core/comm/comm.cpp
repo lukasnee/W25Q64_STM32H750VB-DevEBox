@@ -87,7 +87,7 @@ void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
     }
     rp.addr = rq.addr;
     rp.buff.size = rq.len;
-    CSP_QSPI_EnableMemoryMappedMode2();
+    W25Q_EnableMemoryMappedMode2();
     memcpy(rp.buff.bytes, reinterpret_cast<const void *>(QSPI_BASE + rq.addr),
            rq.len);
     comm_queue_response(CommCmdQspiReadRp, min_id, &rp);
@@ -96,8 +96,8 @@ void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
 void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
 {
     __set_PRIMASK(0);
-    if (HAL_OK != CSP_QSPI_WriteMemory(const_cast<uint8_t *>(rq.buff.bytes),
-                                       rq.addr, rq.buff.size)) {
+    if (HAL_OK != W25Q_WriteMemory(const_cast<uint8_t *>(rq.buff.bytes),
+                                   rq.addr, rq.buff.size)) {
         __set_PRIMASK(1);
         return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_WRITE);
     }
@@ -107,7 +107,7 @@ void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
 
 void comm_handle(uint8_t min_id, const CommCmdQspiSectorEraseRq &rq)
 {
-    if (HAL_OK != CSP_QSPI_EraseSector(rq.addr_start, rq.addr_end)) {
+    if (HAL_OK != W25Q_EraseSector(rq.addr_start, rq.addr_end)) {
         return comm_queue_response_basic(min_id,
                                          COMM_RES_ERR_QSPI_SECTOR_ERASE);
     }
@@ -117,7 +117,7 @@ void comm_handle(uint8_t min_id, const CommCmdQspiSectorEraseRq &rq)
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
 {
     __set_PRIMASK(0);
-    if (HAL_OK != CSP_QSPI_Erase_Chip()) {
+    if (HAL_OK != W25Q_Erase_Chip()) {
         __set_PRIMASK(1);
         return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_MASS_ERASE);
     }

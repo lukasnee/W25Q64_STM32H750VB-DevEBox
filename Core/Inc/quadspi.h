@@ -35,16 +35,62 @@ extern "C" {
 extern QSPI_HandleTypeDef hqspi;
 
 /* USER CODE BEGIN Private defines */
-uint8_t CSP_QUADSPI_Init(void);
-uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress,
-                             uint32_t EraseEndAddress);
-uint8_t CSP_QSPI_EraseBlock(uint32_t flash_address);
-uint8_t CSP_QSPI_WriteMemory(const uint8_t *buffer, uint32_t address,
-                             uint32_t buffer_size);
-uint8_t CSP_QSPI_EnableMemoryMappedMode(void);
-uint8_t CSP_QSPI_EnableMemoryMappedMode2(void);
-uint8_t CSP_QSPI_Erase_Chip(void);
-uint8_t QSPI_AutoPollingMemReady(void);
+HAL_StatusTypeDef W25Q_Init(void);
+
+/**
+ * @brief Erase a sector of the W25Q QSPI FLASH
+ *
+ * @param EraseStartAddress Start address of the sector to erase. 0-based
+ * address in bytes.
+ * @param EraseEndAddress End address of the sector to erase. 0-based address in
+ * bytes.
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef W25Q_EraseSector(uint32_t EraseStartAddress,
+                                   uint32_t EraseEndAddress);
+
+/**
+ * @brief Erase a block of the W25Q QSPI FLASH
+ *
+ * @param flash_address Address of the block to erase. 0-based address in bytes.
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef W25Q_EraseBlock(uint32_t flash_address);
+
+/**
+ * @brief Write to the W25Q QSPI FLASH
+ *
+ * @param buffer Buffer to write from.
+ * @param address Address to write to. 0-based address in bytes.
+ * @param buffer_size Size of the buffer to write.
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef W25Q_WriteMemory(const uint8_t *buffer, uint32_t address,
+                                   uint32_t buffer_size);
+
+/**
+ * @brief Enable memory mapped mode on the W25Q QSPI FLASH. Memory is mapped to
+ * 0x90000000 address.
+ *
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef W25Q_EnableMemoryMappedMode(void);
+HAL_StatusTypeDef W25Q_EnableMemoryMappedMode2(void);
+
+/**
+ * @brief Erase the entire W25Q QSPI FLASH chip.
+ *
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef W25Q_Erase_Chip(void);
+
+/**
+ * @brief Configure the QSPI Automatic Polling Mode in blocking mode for the
+ * W25Q QSPI FLASH
+ *
+ * @retval HAL_StatusTypeDef HAL_OK if successful, error otherwise
+ */
+HAL_StatusTypeDef QSPI_AutoPollingMemReady(void);
 /* USER CODE END Private defines */
 
 void MX_QUADSPI_Init(void);
