@@ -1,2 +1,5 @@
 CommCmdQspiWriteRq.buff max_size: 128
 CommCmdQspiReadRp.buff max_size: 128
+CommLfsOpenRq.path max_size: 128
+CommLfsReadRp.buff max_size: 128
+CommLfsWriteRq.buff max_size: 128

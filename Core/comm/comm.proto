@@ -6,6 +6,10 @@ enum COMM_CMD {
     QSPI_SECTOR_ERASE = 2;
     QSPI_MASS_ERASE = 5;
     BOOTLOADER_INTERCEPT = 10;
+    LFS_OPEN = 20;
+    LFS_CLOSE = 21;
+    LFS_READ = 22;
+    LFS_WRITE = 23;
 }
 
 enum COMM_RES {
@@ -48,4 +52,66 @@ message CommCmdQspiMassEraseRq {
 
 message CommCmdBootloaderInterceptRq {
     uint32 intercept = 1; // 0 = off, 1 = on
+}
+
+enum CommLfsOpenFlags {
+    COMM_LFS_NONE = 0;
+    COMM_LFS_O_RDONLY = 1;
+    COMM_LFS_O_WRONLY = 2;
+    COMM_LFS_O_RDWR = 3;
+    COMM_LFS_O_CREAT = 0x0100;
+    COMM_LFS_O_EXCL = 0x0200;
+    COMM_LFS_O_TRUNC = 0x0400;
+    COMM_LFS_O_APPEND = 0x0800;
+};
+
+enum CommLfsErr {
+    COMM_LFS_ERR_OK          = 0;    // No error
+    COMM_LFS_ERR_IO          = -5;   // Error during device operation
+    COMM_LFS_ERR_CORRUPT     = -84;  // Corrupted
+    COMM_LFS_ERR_NOENT       = -2;   // No directory entry
+    COMM_LFS_ERR_EXIST       = -17;  // Entry already exists
+    COMM_LFS_ERR_NOTDIR      = -20;  // Entry is not a dir
+    COMM_LFS_ERR_ISDIR       = -21;  // Entry is a dir
+    COMM_LFS_ERR_NOTEMPTY    = -39;  // Dir is not empty
+    COMM_LFS_ERR_BADF        = -9;   // Bad file number
+    COMM_LFS_ERR_FBIG        = -27;  // File too large
+    COMM_LFS_ERR_INVAL       = -22;  // Invalid parameter
+    COMM_LFS_ERR_NOSPC       = -28;  // No space left on device
+    COMM_LFS_ERR_NOMEM       = -12;  // No more memory available
+    COMM_LFS_ERR_NOATTR      = -61;  // No data/attr available
+    COMM_LFS_ERR_NAMETOOLONG = -36;  // File name too long
+};
+
+message CommLfsOpenRq {
+    string path = 1;
+    int32 flags = 2; // CommLfsOpenFlags
+}
+
+message CommLfsOpenRp {
+    int32 result = 1; // CommLfsErr
+}
+
+message CommLfsCloseRq {
+}
+
+message CommLfsCloseRp {
+    int32 result = 1; // CommLfsErr
+}
+
+message CommLfsReadRq {
+    uint32 len = 1;
+}
+
+message CommLfsReadRp {
+    int32 result = 1; // CommLfsErr
+    bytes buff = 2;
+}
+
+message CommLfsWriteRq {
+    bytes buff = 1;
+}
+
+message CommLfsWriteRp {
+    int32 result = 1; // CommLfsErr
 }
