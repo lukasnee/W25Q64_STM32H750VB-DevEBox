@@ -8,6 +8,7 @@
 #include "stm32h7xx_hal.h"
 
 #include "min.h"
+#include "lfsapp/lfsapp.h"
 
 #include "quadspi.h"
 
@@ -125,6 +126,37 @@ void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
     return comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 
+static lfs_file_t lfs_file;
+
+void comm_handle(uint8_t min_id, const CommCmdLfsOpenRq &rq)
+{
+    CommCmdLfsOpenRp rp = CommCmdLfsOpenRp_init_default;
+    rp.result = lfs_file_open(&lfs, &lfs_file, rq.path, rq.flags);
+    comm_queue_response(CommCmdLfsOpenRp, min_id, &rp);
+}
+
+void comm_handle(uint8_t min_id, const CommCmdLfsCloseRq &rq)
+{
+    CommCmdLfsCloseRp rp = CommCmdLfsCloseRp_init_default;
+    rp.result = lfs_file_close(&lfs, &lfs_file);
+    comm_queue_response(CommCmdLfsCloseRp, min_id, &rp);
+}
+
+void comm_handle(uint8_t min_id, const CommCmdLfsReadRq &rq)
+{
+    CommCmdLfsReadRp rp = CommCmdLfsReadRp_init_default;
+    rp.result = lfs_file_read(&lfs, &lfs_file, rp.buff.bytes, rq.len);
+    rp.buff.size = rq.len;
+    comm_queue_response(CommCmdLfsReadRp, min_id, &rp);
+}
+
+void comm_handle(uint8_t min_id, const CommCmdLfsWriteRq &rq)
+{
+    CommCmdLfsWriteRp rp = CommCmdLfsWriteRp_init_default;
+    rp.result = lfs_file_write(&lfs, &lfs_file, rq.buff.bytes, rq.buff.size);
+    comm_queue_response(CommCmdLfsWriteRp, min_id, &rp);
+}
+
 template <typename T>
 void comm_handle(const pb_msgdesc_t *fields, uint8_t min_id,
                  const uint8_t *data, uint8_t size)
@@ -149,7 +181,11 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
     HANDLE(COMM_CMD_QSPI_READ, CommCmdQspiReadRq);                             \
     HANDLE(COMM_CMD_QSPI_SECTOR_ERASE, CommCmdQspiSectorEraseRq);              \
     HANDLE(COMM_CMD_BOOTLOADER_INTERCEPT, CommCmdBootloaderInterceptRq);       \
-    HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);
+    HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);                  \
+    HANDLE(COMM_CMD_LFS_OPEN, CommCmdLfsOpenRq);                               \
+    HANDLE(COMM_CMD_LFS_CLOSE, CommCmdLfsCloseRq);                             \
+    HANDLE(COMM_CMD_LFS_READ, CommCmdLfsReadRq);                               \
+    HANDLE(COMM_CMD_LFS_WRITE, CommCmdLfsWriteRq);
 
         HANDLES;
 

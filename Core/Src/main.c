@@ -153,6 +153,16 @@ void jump_to_app(const uint32_t address)
 
 /* USER CODE END 0 */
 
+void boot_fatal_error(void)
+{
+    while (1) {
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
+        HAL_Delay(100);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
+        HAL_Delay(100);
+    }
+}
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -227,15 +237,6 @@ int main(void)
 
     // test the littlefs
     lfsapp_init();
-    lfs_file_t file;
-    lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-    uint32_t boot_count = 0;
-    lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
-    boot_count += 1;
-    lfs_file_rewind(&lfs, &file);
-    lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
-    lfs_file_close(&lfs, &file);
-    printf("boot_count: %ld\n", boot_count);
 
     comm_service(3000);
 
@@ -246,21 +247,26 @@ int main(void)
 
 #if defined(VARIANT_BL_IRAM)
 
-    // load the application from QSPI to D1_AXISRAM_BASE
-    const uint32_t section_size = 512 * 1024;
-    memcpy((void *)D1_AXISRAM_BASE, (void *)QSPI_BASE, section_size);
-
-    // Verify the CRC
-    // const uint32_t expected_crc = crc32((void *)QSPI_BASE, section_size);
-    // const uint32_t actual_crc = crc32((void *)D1_AXISRAM_BASE, section_size);
-    // if (expected_crc != actual_crc) {
-    //     while (1) {
-    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_SET);
-    //         HAL_Delay(100);
-    //         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, GPIO_PIN_RESET);
-    //         HAL_Delay(100);
-    //     }
-    // }
+    lfs_file_t file;
+    int rc = lfs_file_open(&lfs, &file, "boot/app.bin", LFS_O_RDONLY);
+    if (rc < 0) {
+        boot_fatal_error();
+    }
+    const lfs_soff_t app_size = lfs_file_size(&lfs, &file);
+    if (app_size <= 0) {
+        boot_fatal_error();
+    }
+    rc = lfs_file_read(&lfs, &file, (void *)D1_AXISRAM_BASE, app_size);
+    if (rc < 0) {
+        boot_fatal_error();
+    }
+    if (rc != app_size) {
+        boot_fatal_error();
+    }
+    rc = lfs_file_close(&lfs, &file);
+    if (rc < 0) {
+        boot_fatal_error();
+    }
     HAL_QSPI_DeInit(&hqspi);
     HAL_DeInit();
 #define APP_BASE D1_AXISRAM_BASE
