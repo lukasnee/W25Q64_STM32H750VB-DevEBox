@@ -24,31 +24,20 @@ parser.add_argument('-b,', '--baudrate', type=int,
                     default=921600, help='MIN baudrate')
 args = parser.parse_args()
 
-
-def wait_for_responses(min_handler: MINTransportSerial, timeout: float = 15.0):
+def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: float = 15.0):
     start_time = time()
     while True:
         # The polling will generally block waiting for characters on a timeout
         # How much CPU time this takes depends on the Python serial implementation
         # on the target machine
         frames = min_handler.poll()
-        if frames:
-            return frames
-        if time() - start_time > timeout:
-            return None
-
-
-def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: float = 15.0):
-    while True:
-        frames = wait_for_responses(min_handler, timeout)
-        if not frames:
-            print("Timeout waiting for frame")
-            return None
         for frame in frames:
             if frame.min_id != min_id:
                 print(f"Unexpected min_id: {pb.COMM_CMD.Name(frame.min_id)}")
                 continue
             return frame
+        if time() - start_time > timeout:
+            raise TimeoutError("Timeout waiting for frames")
 
 
 def queue_request(min_handler: MINTransportSerial, min_id: int, rq: Structure):
@@ -150,21 +139,17 @@ def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
     return True
 
 
-def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool):
+def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, timeout: float = 1.0):
+    # print(f"comm_cmd_bootloader_intercept(state={state}): ", end="")
     intercept_rq = pb.CommCmdBootloaderInterceptRq(intercept=state)
-    print(f"comm_cmd_bootloader_intercept(state={state}): ", end="")
     queue_request(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, intercept_rq)
-    frame = wait_for_response(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT)
-    if not frame:
-        return False
+    frame = wait_for_response(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, timeout)
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
         print(f"{pb.COMM_RES.Name(rp.result)}")
-        return False
+        raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
     print(f"{pb.COMM_RES.Name(rp.result)}")
-    return True
-
 
 if __name__ == "__main__":
     min_handler = MINTransportSerial(
@@ -172,6 +157,14 @@ if __name__ == "__main__":
 
     min_handler.transport_reset()
 
-    comm_cmd_bootloader_intercept(min_handler, True)
+    print("Please reset the device. Waiting", end="")
+    sys.stdout.flush()
+    while True:
+        try:
+            comm_cmd_bootloader_intercept(min_handler, True)
+            break
+        except TimeoutError:
+            print(".", end="")
+            sys.stdout.flush()
     comm_cmd_write_file_using_flash_commands(min_handler, args.file, 0)
     comm_cmd_bootloader_intercept(min_handler, False)
