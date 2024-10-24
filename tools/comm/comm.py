@@ -62,34 +62,33 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
     comm_cmd_qspi_sector_erase = pb.CommCmdQspiSectorEraseRq()
     comm_cmd_qspi_sector_erase.addr_start = addr_start
     comm_cmd_qspi_sector_erase.addr_end = addr_end
-    while True:
-        queue_request(min_handler, pb.COMM_CMD.QSPI_SECTOR_ERASE,
-                      comm_cmd_qspi_sector_erase)
-        frame = wait_for_response(
-            min_handler, pb.COMM_CMD.QSPI_SECTOR_ERASE, 10)
-        if not frame:
-            continue
-        rp = pb.CommCmdBasicRp()
-        rp.ParseFromString(frame.payload)
-        if rp.result != pb.COMM_RES.OK:
-            sleep(0.1)
-            print(f"{pb.COMM_RES.Name(rp.result)}")
-            continue
+    queue_request(min_handler, pb.COMM_CMD.QSPI_SECTOR_ERASE,
+                  comm_cmd_qspi_sector_erase)
+    frame = wait_for_response(
+        min_handler, pb.COMM_CMD.QSPI_SECTOR_ERASE, 10)
+    if not frame:
+        return False
+    rp = pb.CommCmdBasicRp()
+    rp.ParseFromString(frame.payload)
+    if rp.result != pb.COMM_RES.OK:
+        sleep(0.1)
         print(f"{pb.COMM_RES.Name(rp.result)}")
-        return True
+        return False
+    print(f"{pb.COMM_RES.Name(rp.result)}")
+    return True
 
 
-def comm_cmd_write_file(min_handler: MINTransportSerial, file_path: str, offset: int):
+def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, file_path: str, offset: int):
     print(
-        f"comm_cmd_write_file(file_path={file_path}, offset=0x{offset:08X}):")
+        f"comm_cmd_write_file_using_flash_commands(file_path={file_path}, offset=0x{offset:08X}):")
     MAX_BUFF_SIZE = 128
     comm_cmd_qspi_write = pb.CommCmdQspiWriteRq()
     file_size = os.path.getsize(file_path)
     comm_cmd_sector_erase(min_handler, offset, offset + file_size)
     print(f"Flashing file of size: {file_size}")
-    with open(file_path, 'rb') as f:
+    with open(file_path, 'rb') as file:
         comm_cmd_qspi_write.addr = offset
-        write_buff = f.read(MAX_BUFF_SIZE)
+        write_buff = file.read(MAX_BUFF_SIZE)
         comm_cmd_qspi_write.buff = write_buff
         while len(write_buff) > 0:
             print(
@@ -105,12 +104,12 @@ def comm_cmd_write_file(min_handler: MINTransportSerial, file_path: str, offset:
                 print(f"Error flashing: {pb.COMM_RES.Name(rp.result)}")
                 continue
             comm_cmd_qspi_write.addr += len(write_buff)
-            write_buff = f.read(MAX_BUFF_SIZE)
+            write_buff = file.read(MAX_BUFF_SIZE)
             comm_cmd_qspi_write.buff = write_buff
         print("")
 
         print("Verifying flash: ", end="")
-        f.seek(0)
+        file.seek(0)
         comm_cmd_qspi_read = pb.CommCmdQspiReadRq()
         comm_cmd_qspi_read.addr = offset
         comm_cmd_qspi_read.len = min(file_size, MAX_BUFF_SIZE)
@@ -124,7 +123,7 @@ def comm_cmd_write_file(min_handler: MINTransportSerial, file_path: str, offset:
                 return False
             rp = pb.CommCmdQspiReadRp()
             rp.ParseFromString(frame.payload)
-            if rp.buff != f.read(len(rp.buff)):
+            if rp.buff != file.read(len(rp.buff)):
                 print("Verification failed at addr: 0x{:08X}".format(
                     comm_cmd_qspi_read.addr))
                 return False
@@ -174,5 +173,5 @@ if __name__ == "__main__":
     min_handler.transport_reset()
 
     comm_cmd_bootloader_intercept(min_handler, True)
-    comm_cmd_write_file(min_handler, args.file, 0)
+    comm_cmd_write_file_using_flash_commands(min_handler, args.file, 0)
     comm_cmd_bootloader_intercept(min_handler, False)
