@@ -177,15 +177,16 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
     case cmd:                                                                  \
         return comm_handle<type>(type##_fields, min_id, data, size)
 #define HANDLES                                                                \
-    HANDLE(COMM_CMD_QSPI_WRITE, CommCmdQspiWriteRq);                           \
-    HANDLE(COMM_CMD_QSPI_READ, CommCmdQspiReadRq);                             \
-    HANDLE(COMM_CMD_QSPI_SECTOR_ERASE, CommCmdQspiSectorEraseRq);              \
-    HANDLE(COMM_CMD_BOOTLOADER_INTERCEPT, CommCmdBootloaderInterceptRq);       \
-    HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);                  \
+    HANDLE(COMM_CMD_INTERCEPT, CommCmdInterceptRq);                            \
+    HANDLE(COMM_CMD_RELEASE, CommCmdReleaseRq);                                \
     HANDLE(COMM_CMD_LFS_OPEN, CommCmdLfsOpenRq);                               \
     HANDLE(COMM_CMD_LFS_CLOSE, CommCmdLfsCloseRq);                             \
     HANDLE(COMM_CMD_LFS_READ, CommCmdLfsReadRq);                               \
-    HANDLE(COMM_CMD_LFS_WRITE, CommCmdLfsWriteRq);
+    HANDLE(COMM_CMD_LFS_WRITE, CommCmdLfsWriteRq);                             \
+    HANDLE(COMM_CMD_QSPI_WRITE, CommCmdQspiWriteRq);                           \
+    HANDLE(COMM_CMD_QSPI_READ, CommCmdQspiReadRq);                             \
+    HANDLE(COMM_CMD_QSPI_SECTOR_ERASE, CommCmdQspiSectorEraseRq);              \
+    HANDLE(COMM_CMD_QSPI_MASS_ERASE, CommCmdQspiMassEraseRq);
 
         HANDLES;
 
@@ -198,9 +199,15 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
 
 static bool intercepted = false;
 
-void comm_handle(uint8_t min_id, const CommCmdBootloaderInterceptRq &rq)
+void comm_handle(uint8_t min_id, const CommCmdInterceptRq &rq)
 {
-    intercepted = rq.intercept != 0;
+    intercepted = true;
+    comm_queue_response_basic(min_id, COMM_RES_OK);
+}
+
+void comm_handle(uint8_t min_id, const CommCmdReleaseRq &rq)
+{
+    intercepted = false;
     comm_queue_response_basic(min_id, COMM_RES_OK);
 }
 

@@ -7,7 +7,7 @@ Therefore, most of the instructions are the same for both bootloaders.
 
 ```bash
 sudo apt-get update && sudo apt-get -y upgrade
-pip install protobuf==3.20.*
+pip install protobuf==3.20.* humanize argparse
 ```
 
 ## Flashing Bootloader
