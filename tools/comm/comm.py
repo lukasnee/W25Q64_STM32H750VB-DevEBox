@@ -17,6 +17,13 @@ from ctypes import Structure, c_uint8
 import comm_pb2 as pb
 
 
+log = logging.getLogger("comm")
+
+
+def fn_name():
+    return sys._getframe(1).f_code.co_name
+
+
 def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: float = 15.0):
     start_time = time()
     while True:
@@ -26,7 +33,8 @@ def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: flo
         frames = min_handler.poll()
         for frame in frames:
             if frame.min_id != min_id:
-                print(f"Unexpected min_id: {pb.COMM_CMD.Name(frame.min_id)}")
+                log.error(
+                    f"Unexpected min_id: {pb.COMM_CMD.Name(frame.min_id)}")
                 continue
             return frame
         if time() - start_time > timeout:
@@ -34,13 +42,13 @@ def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: flo
 
 
 def queue_request(min_handler: MINTransportSerial, min_id: int, rq: Structure):
-    # print(f"queue_request(min_id={pb.COMM_CMD.Name(min_id)}):")
+    log.debug(f"{fn_name()}(min_id={pb.COMM_CMD.Name(min_id)}, rq={rq})")
     min_handler.queue_frame(min_id=min_id, payload=rq.SerializeToString())
 
 
 def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr_end: int):
-    print(
-        f"comm_cmd_sector_erase(addr_start=0x{addr_start:08X}, addr_end=0x{addr_end:08X}): ", end="")
+    log.debug(
+        f"{fn_name()}(addr_start=0x{addr_start:08X}, addr_end=0x{addr_end:08X})")
     comm_cmd_qspi_sector_erase = pb.CommCmdQspiSectorEraseRq()
     comm_cmd_qspi_sector_erase.addr_start = addr_start
     comm_cmd_qspi_sector_erase.addr_end = addr_end
@@ -54,15 +62,15 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
         sleep(0.1)
-        print(f"{pb.COMM_RES.Name(rp.result)}")
+        log.error(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
         return False
-    print(f"{pb.COMM_RES.Name(rp.result)}")
+    log.debug(f"{pb.COMM_RES.Name(rp.result)}")
     return True
 
 
 def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, file_path: str, offset: int):
-    print(
-        f"comm_cmd_write_file_using_flash_commands(file_path={file_path}, offset=0x{offset:08X}):")
+    log.debug(
+        f"{fn_name()}(file_path={file_path}, offset=0x{offset:08X}):")
     MAX_BUFF_SIZE = 128
     comm_cmd_qspi_write = pb.CommCmdQspiWriteRq()
     file_size = os.path.getsize(file_path)
@@ -83,7 +91,7 @@ def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, fi
             rp = pb.CommCmdBasicRp()
             rp.ParseFromString(frame.payload)
             if rp.result != pb.COMM_RES.OK:
-                print(f"Error flashing: {pb.COMM_RES.Name(rp.result)}")
+                log.error(f"Error flashing: {pb.COMM_RES.Name(rp.result)}")
                 continue
             comm_cmd_qspi_write.addr += len(write_buff)
             write_buff = file.read(MAX_BUFF_SIZE)
@@ -117,7 +125,7 @@ def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, fi
 
 
 def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
-    print("comm_cmd_qspi_mass_erase: ", end="")
+    log.debug(f"{fn_name()}()")
     queue_request(min_handler, pb.COMM_CMD.QSPI_MASS_ERASE,
                   pb.CommCmdQspiMassEraseRq())
     frame = wait_for_response(min_handler, pb.COMM_CMD.QSPI_MASS_ERASE)
@@ -126,14 +134,14 @@ def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
-        print(f"{pb.COMM_RES.Name(rp.result)}")
+        log.error(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
         return False
-    print(f"{pb.COMM_RES.Name(rp.result)}")
+    log.debug(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
     return True
 
 
 def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, timeout: float = 1.0):
-    # print(f"comm_cmd_bootloader_intercept(state={state}): ", end="")
+    log.debug(f"{fn_name()}(state={state})")
     intercept_rq = pb.CommCmdBootloaderInterceptRq(intercept=state)
     queue_request(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, intercept_rq)
     frame = wait_for_response(
@@ -141,9 +149,9 @@ def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, 
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
-        print(f"{pb.COMM_RES.Name(rp.result)}")
+        log.error(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
         raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
-    print(f"{pb.COMM_RES.Name(rp.result)}")
+    log.debug(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
 
 
 def parse_args():
@@ -153,13 +161,20 @@ def parse_args():
                         default='/dev/ttyACM0', help='MIN port')
     parser.add_argument('-b,', '--baudrate', type=int,
                         default=921600, help='MIN baudrate')
+    parser.add_argument('-l', '--loglevel', type=int,
+                        default=logging.WARNING, help='Log level (DEBUG=10, INFO=20, WARNING=30, ERROR=40, CRITICAL=50)')
+    parser.add_argument('-L', '--logfile', type=str,
+                        default='comm.log', help='Log file')
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    logging.basicConfig(filename=args.logfile,
+                        level=args.loglevel,
+                        format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
     min_handler = MINTransportSerial(
-        port=args.port, baudrate=args.baudrate, loglevel=1)
+        port=args.port, baudrate=args.baudrate, loglevel=logging.WARNING)
 
     min_handler.transport_reset()
 
