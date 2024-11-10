@@ -24,6 +24,7 @@ parser.add_argument('-b,', '--baudrate', type=int,
                     default=921600, help='MIN baudrate')
 args = parser.parse_args()
 
+
 def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: float = 15.0):
     start_time = time()
     while True:
@@ -143,13 +144,15 @@ def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, 
     # print(f"comm_cmd_bootloader_intercept(state={state}): ", end="")
     intercept_rq = pb.CommCmdBootloaderInterceptRq(intercept=state)
     queue_request(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, intercept_rq)
-    frame = wait_for_response(min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, timeout)
+    frame = wait_for_response(
+        min_handler, pb.COMM_CMD.BOOTLOADER_INTERCEPT, timeout)
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
         print(f"{pb.COMM_RES.Name(rp.result)}")
         raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
     print(f"{pb.COMM_RES.Name(rp.result)}")
+
 
 if __name__ == "__main__":
     min_handler = MINTransportSerial(
