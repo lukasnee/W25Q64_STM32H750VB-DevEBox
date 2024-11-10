@@ -238,6 +238,14 @@ int main(void)
     // test the littlefs
     lfsapp_init();
 
+    {
+        // ensure boot directory exists
+        int rc = lfs_mkdir(&lfs, "boot");
+        if (rc < 0 && rc != LFS_ERR_EXIST) {
+            boot_fatal_error();
+        }
+    }
+
     comm_service(3000);
 
     if (W25Q_EnableMemoryMappedMode2() != HAL_OK) {

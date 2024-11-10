@@ -66,7 +66,7 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
     return True
 
 
-def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, file_path: str, offset: int):
+def comm_write_file_using_flash_commands(min_handler: MINTransportSerial, file_path: str, offset: int):
     log.debug(
         f"{fn_name()}(file_path={file_path}, offset=0x{offset:08X}):")
     MAX_BUFF_SIZE = 128
@@ -118,6 +118,42 @@ def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, fi
     return True
 
 
+def comm_cmd_lfs_open(min_handler: MINTransportSerial, file_path: str, flags: int):
+    log.debug(f"{fn_name()}(file_path={file_path})")
+    comm_cmd_fopen_rq = pb.CommCmdLfsOpenRq()
+    comm_cmd_fopen_rq.path = file_path
+    comm_cmd_fopen_rq.flags = flags
+    queue_request(min_handler, pb.COMM_CMD.LFS_OPEN, comm_cmd_fopen_rq)
+    frame = wait_for_response(min_handler, pb.COMM_CMD.LFS_OPEN)
+    rp = pb.CommCmdLfsOpenRp()
+    rp.ParseFromString(frame.payload)
+    if rp.result != pb.COMM_LFS_ERR.LFS_ERR_OK:
+        log.error(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
+        return False
+    log.debug(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
+    return True
+
+
+def comm_cmd_lfs_close(min_handler: MINTransportSerial):
+    log.debug(f"{fn_name()}()")
+    comm_cmd_fclose_rq = pb.CommCmdLfsCloseRq()
+    queue_request(min_handler, pb.COMM_CMD.LFS_CLOSE, comm_cmd_fclose_rq)
+    frame = wait_for_response(min_handler, pb.COMM_CMD.LFS_CLOSE)
+    rp = pb.CommCmdBasicRp()
+    rp.ParseFromString(frame.payload)
+    if rp.result != pb.COMM_LFS_ERR.LFS_ERR_OK:
+        log.error(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
+        return False
+    log.debug(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
+    return True
+
+
+def comm_write_file(min_handler: MINTransportSerial, local_src_path: str, remote_dst_path: str):
+    comm_cmd_lfs_open(min_handler, remote_dst_path, pb.COMM_LFS_O.LFS_O_RDWR |
+                      pb.COMM_LFS_O.LFS_O_CREAT | pb.COMM_LFS_O.LFS_O_TRUNC)
+    comm_cmd_lfs_close(min_handler)
+
+
 def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
     log.debug(f"{fn_name()}()")
     queue_request(min_handler, pb.COMM_CMD.QSPI_MASS_ERASE,
@@ -148,6 +184,7 @@ def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='MIN Transport Serial')
+    # TODO clarify this argument, specify that it's app.bin
     parser.add_argument('file', type=str, help='File to flash')
     parser.add_argument('-D', '--port', type=str,
                         default='/dev/ttyACM0', help='MIN port')
@@ -179,7 +216,8 @@ def main():
         except TimeoutError:
             print(".", end="")
             sys.stdout.flush()
-    comm_cmd_write_file_using_flash_commands(min_handler, args.file, 0)
+    # comm_write_file_using_flash_commands(min_handler, args.file, 0)
+    comm_write_file(min_handler, args.file, "boot/app.bin")
     comm_cmd_bootloader_intercept(min_handler, False)
 
 
