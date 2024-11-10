@@ -82,7 +82,7 @@ void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
         return comm_queue_response_basic(min_id,
                                          COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
-    if ((rq.addr + rq.len) > (1 << (hqspi.Init.FlashSize + 1))) {
+    if ((rq.addr + rq.len) > (1UL << (hqspi.Init.FlashSize + 1UL))) {
         return comm_queue_response_basic(min_id,
                                          COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
