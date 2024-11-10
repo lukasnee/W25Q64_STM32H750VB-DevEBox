@@ -5,7 +5,7 @@
 
 ---
 
-This is an experimental project aimed to unleash the full potential of a cheap
+This is an experimental project aimed to unleash the potential of a cheap
 STM32H750VB-DevEBox development board with W25Q64 QSPI FLASH and be a great
 platform for any kind of embedded project. The project is in the early stage and
 still finding its shape. It incorporates and demonstrates some great open-source
