@@ -56,8 +56,6 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
                   comm_cmd_qspi_sector_erase)
     frame = wait_for_response(
         min_handler, pb.COMM_CMD.QSPI_SECTOR_ERASE, 10)
-    if not frame:
-        return False
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
@@ -86,8 +84,6 @@ def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, fi
             queue_request(min_handler, pb.COMM_CMD.QSPI_WRITE,
                           comm_cmd_qspi_write)
             frame = wait_for_response(min_handler, pb.COMM_CMD.QSPI_WRITE)
-            if not frame:
-                return False
             rp = pb.CommCmdBasicRp()
             rp.ParseFromString(frame.payload)
             if rp.result != pb.COMM_RES.OK:
@@ -109,8 +105,6 @@ def comm_cmd_write_file_using_flash_commands(min_handler: MINTransportSerial, fi
             queue_request(min_handler, pb.COMM_CMD.QSPI_READ,
                           comm_cmd_qspi_read)
             frame = wait_for_response(min_handler, pb.COMM_CMD.QSPI_READ)
-            if not frame:
-                return False
             rp = pb.CommCmdQspiReadRp()
             rp.ParseFromString(frame.payload)
             if rp.buff != file.read(len(rp.buff)):
@@ -129,8 +123,6 @@ def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
     queue_request(min_handler, pb.COMM_CMD.QSPI_MASS_ERASE,
                   pb.CommCmdQspiMassEraseRq())
     frame = wait_for_response(min_handler, pb.COMM_CMD.QSPI_MASS_ERASE)
-    if not frame:
-        return False
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
