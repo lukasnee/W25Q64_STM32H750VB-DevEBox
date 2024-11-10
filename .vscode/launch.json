@@ -5,12 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "bl_iram",
+            "name": "bl_iram (jlink)",
             "type": "cortex-debug",
             "request": "attach",
             "servertype": "openocd",
             "configFiles": [
-                "openocd.cfg"
+                "openocd.jlink.cfg"
             ],
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
@@ -19,9 +19,29 @@
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
+            "breakAfterReset": true,
             // "runToEntryPoint": "main",
-            // "showDevDebugOutput": "raw",
-            "breakAfterReset": true
+            // "showDevDebugOutput": "raw"
+        },
+        {
+            "name": "bl_iram (stlink)",
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "openocd",
+            "configFiles": [
+                "openocd.stlink.cfg"
+            ],
+            "rtos": "FreeRTOS",
+            "cwd": "${workspaceRoot}",
+            "symbolFiles": [
+                "${workspaceRoot}/.build/bl_iram/bl_iram.elf",
+                "${workspaceRoot}/../m8ec/.build/platform/STM32H750/STM32H750",
+            ],
+            "svdFile": "${workspaceRoot}/STM32H753.svd",
+            "interface": "swd",
+            "breakAfterReset": true,
+            // "runToEntryPoint": "main",
+            // "showDevDebugOutput": "raw"
         },
     ]
 }
