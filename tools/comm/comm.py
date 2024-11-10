@@ -1,5 +1,5 @@
 """
-TODO: Add a description of the script
+COMM client and CLI tool
 """
 
 import sys
@@ -24,9 +24,9 @@ def fn_name():
 
 class Comm:
     # TODO: decouple args
-    def __init__(self, args):
+    def __init__(self, port, baudrate):
         self.min_handler = MINTransportSerial(
-            port=args.port, baudrate=args.baudrate, loglevel=logging.WARNING)
+            port=port, baudrate=baudrate, loglevel=logging.WARNING)
         self.min_handler.transport_reset()
 
     # General Commands
@@ -52,16 +52,13 @@ class Comm:
             if time() - start_time > timeout:
                 raise TimeoutError()
 
-    def release_bootloader(self, timeout: float = 1.0):
+    def release_bootloader(self):
         log.debug(f"{fn_name()}()")
         rp = self.transact(pb.COMM_CMD.RELEASE,
-                           pb.CommCmdReleaseRq(), pb.CommCmdBasicRp(), timeout)
+                           pb.CommCmdReleaseRq(), pb.CommCmdBasicRp())
         if rp.result != pb.COMM_RES.OK:
             raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
         log.debug(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
-
-    def flash_app(self, file_path: str):
-        self.transfer_file(file_path, "boot/app.bin")
 
     # LittleFS (File System) Commands
 
@@ -108,7 +105,6 @@ class Comm:
                 self.cmd_lfs_write(buff)
                 buff = file.read(128)
                 bytes_written += len(buff)
-
                 if time() - last_time > 1.0:
                     bytes_per_second_humanized = humanize.naturalsize(
                         bytes_written - last_bytes_written)
@@ -163,9 +159,8 @@ class Comm:
 
             print("Verifying flash: ", end="")
             file.seek(0)
-            comm_cmd_qspi_read_rq = pb.CommCmdQspiReadRq()
-            comm_cmd_qspi_read_rq.addr = offset
-            comm_cmd_qspi_read_rq.len = min(file_size, MAX_BUFF_SIZE)
+            comm_cmd_qspi_read_rq = pb.CommCmdQspiReadRq(
+                addr=offset, len=min(file_size, MAX_BUFF_SIZE))
             while comm_cmd_qspi_read_rq.addr < offset + file_size:
                 print(
                     f"Verifying {comm_cmd_qspi_read_rq.addr}/{offset + file_size} ({(comm_cmd_qspi_read_rq.addr/(offset + file_size))*100:.2f} %)", end="\r")
@@ -191,9 +186,6 @@ class Comm:
     def await_response(self, min_id: int, rp, timeout: float = 15.0):
         start_time = time()
         while True:
-            # The polling will generally block waiting for characters on a timeout
-            # How much CPU time this takes depends on the Python serial implementation
-            # on the target machine
             frames = self.min_handler.poll()
             for frame in frames:
                 if frame.min_id != min_id:
@@ -207,9 +199,9 @@ class Comm:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='MIN Transport Serial')
-    # TODO clarify this argument, specify that it's app.bin
-    parser.add_argument('file', type=str, help='File to flash')
+    parser = argparse.ArgumentParser(description='COMM client CLI tool')
+    parser.add_argument('app_path', type=str,
+                        help='Application binary path to flash')
     parser.add_argument('-D', '--port', type=str,
                         default='/dev/ttyACM0', help='MIN port')
     parser.add_argument('-b,', '--baudrate', type=int,
@@ -226,9 +218,9 @@ def main():
     logging.basicConfig(filename=args.logfile,
                         level=args.loglevel,
                         format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
-    comm = Comm(args)
+    comm = Comm(args.port, args.baudrate)
     comm.await_bootloader(10.0)
-    comm.flash_app(args.file)
+    comm.transfer_file(args.app_path, "boot/app.bin")
     comm.release_bootloader()
 
 
