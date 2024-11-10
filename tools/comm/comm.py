@@ -138,9 +138,30 @@ def comm_cmd_lfs_close(min_handler: MINTransportSerial):
     log.debug(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
 
 
+def comm_cmd_lfs_write(min_handler: MINTransportSerial, buff: bytes):
+    log.debug(f"{fn_name()}()")
+    comm_cmd_fwrite_rq = pb.CommCmdLfsWriteRq()
+    if len(buff) > 128:
+        raise Exception(f"buff size too large: {len(buff)} > 128")
+    comm_cmd_fwrite_rq.buff = buff
+    queue_request(min_handler, pb.COMM_CMD.LFS_WRITE, comm_cmd_fwrite_rq)
+    frame = wait_for_response(min_handler, pb.COMM_CMD.LFS_WRITE)
+    rp = pb.CommCmdLfsWriteRp()
+    rp.ParseFromString(frame.payload)
+    if rp.result < pb.COMM_LFS_ERR.LFS_ERR_OK:
+        raise Exception(f"{pb.COMM_LFS_ERR.Name(rp.result)}")
+    log.debug(
+        f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result) if rp.result == 0 else rp.result}")
+
+
 def comm_write_file(min_handler: MINTransportSerial, local_src_path: str, remote_dst_path: str):
     comm_cmd_lfs_open(min_handler, remote_dst_path, pb.COMM_LFS_O.LFS_O_RDWR |
                       pb.COMM_LFS_O.LFS_O_CREAT | pb.COMM_LFS_O.LFS_O_TRUNC)
+    with open(local_src_path, 'rb') as file:
+        buff = file.read(128)
+        while len(buff) > 0:
+            comm_cmd_lfs_write(min_handler, buff)
+            buff = file.read(128)
     comm_cmd_lfs_close(min_handler)
 
 
