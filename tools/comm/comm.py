@@ -5,8 +5,7 @@ TODO: Add a description of the script
 import sys
 import os
 
-from struct import unpack
-from time import sleep, time
+from time import time
 import argparse
 
 from min import MINTransportSerial
@@ -59,11 +58,8 @@ def comm_cmd_sector_erase(min_handler: MINTransportSerial, addr_start: int, addr
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
-        sleep(0.1)
-        log.error(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
-        return False
+        raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
     log.debug(f"{pb.COMM_RES.Name(rp.result)}")
-    return True
 
 
 def comm_write_file_using_flash_commands(min_handler: MINTransportSerial, file_path: str, offset: int):
@@ -108,14 +104,12 @@ def comm_write_file_using_flash_commands(min_handler: MINTransportSerial, file_p
             rp = pb.CommCmdQspiReadRp()
             rp.ParseFromString(frame.payload)
             if rp.buff != file.read(len(rp.buff)):
-                print("Verification failed at addr: 0x{:08X}".format(
-                    comm_cmd_qspi_read.addr))
-                return False
+                raise Exception(
+                    f"Verification failed at addr: 0x{comm_cmd_qspi_read.addr:08X}")
             comm_cmd_qspi_read.addr += len(rp.buff)
             comm_cmd_qspi_read.len = min(
                 file_size - comm_cmd_qspi_read.addr, MAX_BUFF_SIZE)
         print("")
-    return True
 
 
 def comm_cmd_lfs_open(min_handler: MINTransportSerial, file_path: str, flags: int):
@@ -128,10 +122,8 @@ def comm_cmd_lfs_open(min_handler: MINTransportSerial, file_path: str, flags: in
     rp = pb.CommCmdLfsOpenRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_LFS_ERR.LFS_ERR_OK:
-        log.error(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
-        return False
+        raise Exception(f"{pb.COMM_LFS_ERR.Name(rp.result)}")
     log.debug(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
-    return True
 
 
 def comm_cmd_lfs_close(min_handler: MINTransportSerial):
@@ -142,10 +134,8 @@ def comm_cmd_lfs_close(min_handler: MINTransportSerial):
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_LFS_ERR.LFS_ERR_OK:
-        log.error(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
-        return False
+        raise Exception(f"{pb.COMM_LFS_ERR.Name(rp.result)}")
     log.debug(f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result)}")
-    return True
 
 
 def comm_write_file(min_handler: MINTransportSerial, local_src_path: str, remote_dst_path: str):
@@ -162,10 +152,8 @@ def comm_cmd_qspi_mass_erase(min_handler: MINTransportSerial):
     rp = pb.CommCmdBasicRp()
     rp.ParseFromString(frame.payload)
     if rp.result != pb.COMM_RES.OK:
-        log.error(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
-        return False
+        raise Exception(f"{pb.COMM_RES.Name(rp.result)}")
     log.debug(f"{fn_name()}(): {pb.COMM_RES.Name(rp.result)}")
-    return True
 
 
 def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, timeout: float = 1.0):
