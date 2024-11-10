@@ -16,14 +16,6 @@ from ctypes import Structure, c_uint8
 
 import comm_pb2 as pb
 
-parser = argparse.ArgumentParser(description='MIN Transport Serial')
-parser.add_argument('file', type=str, help='File to flash')
-parser.add_argument('-D', '--port', type=str,
-                    default='/dev/ttyACM0', help='MIN port')
-parser.add_argument('-b,', '--baudrate', type=int,
-                    default=921600, help='MIN baudrate')
-args = parser.parse_args()
-
 
 def wait_for_response(min_handler: MINTransportSerial, min_id: int, timeout: float = 15.0):
     start_time = time()
@@ -154,7 +146,18 @@ def comm_cmd_bootloader_intercept(min_handler: MINTransportSerial, state: bool, 
     print(f"{pb.COMM_RES.Name(rp.result)}")
 
 
-if __name__ == "__main__":
+def parse_args():
+    parser = argparse.ArgumentParser(description='MIN Transport Serial')
+    parser.add_argument('file', type=str, help='File to flash')
+    parser.add_argument('-D', '--port', type=str,
+                        default='/dev/ttyACM0', help='MIN port')
+    parser.add_argument('-b,', '--baudrate', type=int,
+                        default=921600, help='MIN baudrate')
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
     min_handler = MINTransportSerial(
         port=args.port, baudrate=args.baudrate, loglevel=1)
 
@@ -171,3 +174,7 @@ if __name__ == "__main__":
             sys.stdout.flush()
     comm_cmd_write_file_using_flash_commands(min_handler, args.file, 0)
     comm_cmd_bootloader_intercept(min_handler, False)
+
+
+if __name__ == "__main__":
+    main()
