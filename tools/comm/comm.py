@@ -24,7 +24,7 @@ def fn_name():
 
 class Comm:
     # TODO: decouple args
-    def __init__(self, port, baudrate):
+    def __init__(self, port, baudrate=921600):
         self.min_handler = MINTransportSerial(
             port=port, baudrate=baudrate, loglevel=logging.WARNING)
         self.min_handler.transport_reset()
