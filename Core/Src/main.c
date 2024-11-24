@@ -246,7 +246,7 @@ int main(void)
         }
     }
 
-    comm_service(3000);
+    comm_service(1000);
 
     if (W25Q_EnableMemoryMappedMode2() != HAL_OK) {
         while (1)
