@@ -8,6 +8,8 @@ The bootloader itself is stored in the internal flash memory.
 
 ## Building
 
+> **Note:** prerequisites in the [common instructions](bl_common.md) are required!
+
 ```bash
 git submodule update --recursive --init
 make VARIANT=bl_qspiflash
