@@ -2,17 +2,23 @@
 COMM client and CLI tool
 """
 
+import humanize
+import comm_pb2 as pb # build
+import logging
 import sys
 import os
 
 from time import time
 import argparse
 
+min_relpath = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..",
+                                            "extern", "min", "host"))
+if not os.path.exists(min_relpath):
+    raise Exception(f"min does not exist at {min_relpath}")
+# autopep8: off
+sys.path.append(min_relpath)
 from min import MINTransportSerial
-import logging
-
-import comm_pb2 as pb
-import humanize
+# autopep8: on
 
 
 log = logging.getLogger("comm")
