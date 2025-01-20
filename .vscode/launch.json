@@ -15,7 +15,7 @@
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
                 "${workspaceRoot}/.build/bl_iram/bl_iram.elf",
-                "${workspaceRoot}/../m8ec/.build/platform/STM32H750/STM32H750",
+                "${workspaceRoot}/../../.build/source/m8ec",
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
@@ -35,7 +35,7 @@
             "cwd": "${workspaceRoot}",
             "symbolFiles": [
                 "${workspaceRoot}/.build/bl_iram/bl_iram.elf",
-                "${workspaceRoot}/../m8ec/.build/platform/STM32H750/STM32H750",
+                "${workspaceRoot}/../../.build/source/m8ec",
             ],
             "svdFile": "${workspaceRoot}/STM32H753.svd",
             "interface": "swd",
