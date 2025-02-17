@@ -43,6 +43,7 @@ int lfs_qspi_flash_erase(const struct lfs_config *c, lfs_block_t block)
 
 int lfs_qspi_flash_sync(const struct lfs_config *c)
 {
+    (void)c;
     return LFS_ERR_OK; // no cache, nothing to sync
 }
 
