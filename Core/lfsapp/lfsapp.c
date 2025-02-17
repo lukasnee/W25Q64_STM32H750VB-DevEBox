@@ -64,6 +64,8 @@ const struct lfs_config lfs_cfg = {
 
 int lfsapp_init(void)
 {
+    MX_QUADSPI_Init();
+    W25Q_Init();
     // mount the filesystem
     volatile int err = lfs_mount(&lfs, &lfs_cfg);
 

@@ -193,13 +193,13 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_QUADSPI_Init();
     MX_UART4_Init();
     /* USER CODE BEGIN 2 */
 
+#ifdef VARIANT_EXT_LOADER
+    MX_QUADSPI_Init();
     W25Q_Init();
 
-#ifdef VARIANT_EXT_LOADER
     uint8_t buffer_test[MEMORY_SECTOR_SIZE];
     for (uint32_t var = 0; var < MEMORY_SECTOR_SIZE; var++) {
         buffer_test[var] = (var & 0xff);
