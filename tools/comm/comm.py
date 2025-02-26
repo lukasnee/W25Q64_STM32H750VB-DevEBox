@@ -3,7 +3,7 @@ COMM client and CLI tool
 """
 
 import humanize
-import comm_pb2 as pb # build
+import comm_pb2 as pb  # build
 import logging
 import sys
 import os
@@ -22,6 +22,9 @@ from min import MINTransportSerial
 
 
 log = logging.getLogger("comm")
+
+
+MAX_BUFF_SIZE = 240
 
 
 def fn_name():
@@ -86,8 +89,9 @@ class Comm:
 
     def cmd_lfs_write(self, buff: bytes):
         log.debug(f"{fn_name()}()")
-        if len(buff) > 128:
-            raise Exception(f"buff size too large: {len(buff)} > 128")
+        if len(buff) > MAX_BUFF_SIZE:
+            raise Exception(
+                f"buff size too large: {len(buff)} > {MAX_BUFF_SIZE}")
         rp = self.transact(pb.COMM_CMD.LFS_WRITE, pb.CommCmdLfsWriteRq(
             buff=buff), pb.CommCmdLfsWriteRp())
         if rp.result < pb.COMM_LFS_ERR.LFS_ERR_OK:
@@ -99,24 +103,27 @@ class Comm:
         self.cmd_lfs_open(remote_dst_path, pb.COMM_LFS_O.LFS_O_RDWR |
                           pb.COMM_LFS_O.LFS_O_CREAT | pb.COMM_LFS_O.LFS_O_TRUNC)
         bytes_written = 0
-        last_time = time()
+        initial_time = last_time = time()
         last_bytes_written = 0
         bytes_per_second_humanized = 0
         with open(local_src_path, 'rb') as file:
-            buff = file.read(128)
-            print(" " * 100, end="\r")
+            buff = file.read(MAX_BUFF_SIZE)
+            print("")
+            update_period = 1.0
             while len(buff) > 0:
-                print(
-                    f"Transferring '{local_src_path}' to '{remote_dst_path}' {(file.tell()/os.path.getsize(local_src_path))*100:.2f}% @ {bytes_per_second_humanized}/s", end="\r")
                 self.cmd_lfs_write(buff)
-                buff = file.read(128)
+                buff = file.read(MAX_BUFF_SIZE)
                 bytes_written += len(buff)
-                if time() - last_time > 1.0:
+                if time() - last_time > update_period:
                     bytes_per_second_humanized = humanize.naturalsize(
-                        bytes_written - last_bytes_written)
+                        (bytes_written - last_bytes_written) / update_period)
+                    print(
+                        f"Transferring '{local_src_path}' to '{remote_dst_path}' {(file.tell()/os.path.getsize(local_src_path))*100:.2f}% @ {bytes_per_second_humanized}/s", end="\r")
                     last_bytes_written = bytes_written
                     last_time = time()
             print("")
+        print("took", humanize.naturaldelta(
+            (time() - initial_time), minimum_unit="milliseconds"))
         self.cmd_lfs_close()
 
     # QSPI FLASH Commands
@@ -141,7 +148,6 @@ class Comm:
     def transfer_file_using_flash_commands(self, file_path: str, offset: int):
         log.debug(
             f"{fn_name()}(file_path={file_path}, offset=0x{offset:08X}):")
-        MAX_BUFF_SIZE = 128
         comm_cmd_qspi_write_rq = pb.CommCmdQspiWriteRq()
         file_size = os.path.getsize(file_path)
         self.cmd_sector_erase(offset, offset + file_size)
