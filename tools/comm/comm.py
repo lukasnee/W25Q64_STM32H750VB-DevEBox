@@ -33,15 +33,15 @@ def fn_name():
 
 class Comm:
     # TODO: decouple args
-    def __init__(self, port, baudrate=921600, loglevel=logging.WARNING):
+    def __init__(self, port, baudrate=921600, log_level=logging.WARNING):
         self.min_handler = MINTransportSerial(
-            port=port, baudrate=baudrate, loglevel=loglevel)
+            port=port, baudrate=baudrate, loglevel=log_level)
         self.min_handler.transport_reset()
 
     # General Commands
 
     def capture_bootloader(self,
-                         timeout: float = 10.0):
+                           timeout: float = 10.0):
         log.debug(f"{fn_name()}()")
         print("Please reset the device. Waiting", end="")
         sys.stdout.flush()
@@ -224,17 +224,17 @@ def parse_args():
                         default='/dev/ttyACM0', help='MIN port')
     parser.add_argument('-b,', '--baudrate', type=int,
                         default=921600, help='MIN baudrate')
-    parser.add_argument('-l', '--loglevel', type=int,
+    parser.add_argument('-l', '--log_level', type=int,
                         default=logging.WARNING, help='Log level (DEBUG=10, INFO=20, WARNING=30, ERROR=40, CRITICAL=50)')
-    parser.add_argument('-L', '--logfile', type=str,
-                        default='comm.log', help='Log file')
+    parser.add_argument('-L', '--log_file', type=str,
+                        default=None, help='Log file')
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
     if args.command == "upload":
-        logging.basicConfig(level=args.loglevel,
+        logging.basicConfig(level=args.log_level, filename=args.log_file,
                             format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
         comm = Comm(args.port, args.baudrate)
         comm.capture_bootloader(10.0)
