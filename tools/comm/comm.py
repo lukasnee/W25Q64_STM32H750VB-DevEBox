@@ -40,7 +40,7 @@ class Comm:
 
     # General Commands
 
-    def await_bootloader(self,
+    def capture_bootloader(self,
                          timeout: float = 10.0):
         log.debug(f"{fn_name()}()")
         print("Please reset the device. Waiting", end="")
@@ -99,7 +99,7 @@ class Comm:
         log.debug(
             f"{fn_name()}(): {pb.COMM_LFS_ERR.Name(rp.result) if rp.result == 0 else rp.result}")
 
-    def transfer_file(self, local_src_path: str, remote_dst_path: str):
+    def upload_file(self, local_src_path: str, remote_dst_path: str):
         self.cmd_lfs_open(remote_dst_path, pb.COMM_LFS_O.LFS_O_RDWR |
                           pb.COMM_LFS_O.LFS_O_CREAT | pb.COMM_LFS_O.LFS_O_TRUNC)
         bytes_written = 0
@@ -211,9 +211,15 @@ class Comm:
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='COMM client CLI tool')
-    parser.add_argument('app_path', type=str,
-                        help='Application binary path to flash')
+    parser = argparse.ArgumentParser(description='COMM host CLI tool')
+    subparsers = parser.add_subparsers(dest='command', help='Sub-command help')
+
+    upload_parser = subparsers.add_parser('upload', help='Upload a file')
+    upload_parser.add_argument(
+        'src_path', type=str, help='Source file path (host)')
+    upload_parser.add_argument(
+        'dst_path', type=str, help='Destination file path (target)', default="boot/app.bin")
+
     parser.add_argument('-D', '--port', type=str,
                         default='/dev/ttyACM0', help='MIN port')
     parser.add_argument('-b,', '--baudrate', type=int,
@@ -227,13 +233,15 @@ def parse_args():
 
 def main():
     args = parse_args()
-    logging.basicConfig(filename=args.logfile,
-                        level=args.loglevel,
-                        format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
-    comm = Comm(args.port, args.baudrate)
-    comm.await_bootloader(10.0)
-    comm.transfer_file(args.app_path, "boot/app.bin")
-    comm.release_bootloader()
+    if args.command == "upload":
+        logging.basicConfig(level=args.loglevel,
+                            format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
+        comm = Comm(args.port, args.baudrate)
+        comm.capture_bootloader(10.0)
+        comm.upload_file(args.src_path, args.dst_path)
+        comm.release_bootloader()
+        return
+    raise Exception("Invalid command")
 
 
 if __name__ == "__main__":
