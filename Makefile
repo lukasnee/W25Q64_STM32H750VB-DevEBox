@@ -135,7 +135,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32H750xx
+-DSTM32H750xx \
+-DNO_TRANSPORT_PROTOCOL
 
 ifdef VARIANT
 ifeq ($(VARIANT), ext_loader)

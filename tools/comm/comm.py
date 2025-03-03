@@ -192,7 +192,7 @@ class Comm:
 
     def send_request(self, min_id: int, rq):
         log.debug(f"{fn_name()}(min_id={pb.COMM_CMD.Name(min_id)}, rq={rq})")
-        self.min_handler.queue_frame(
+        self.min_handler.send_frame(
             min_id=min_id, payload=rq.SerializeToString())
 
     def await_response(self, min_id: int, rp, timeout: float = 15.0):

@@ -56,42 +56,40 @@ extern "C" uint32_t min_time_ms(void)
 
 // MIN API END
 
-static void _comm_queue_response(uint8_t min_id, const void *payload,
-                                 const pb_msgdesc_t *fields)
+static void _comm_send_response(uint8_t min_id, const void *payload,
+                                const pb_msgdesc_t *fields)
 {
     uint8_t buffer[MAX_PAYLOAD];
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     pb_encode(&stream, fields, payload);
-    min_queue_frame(&min_ctx, min_id, buffer, stream.bytes_written);
+    min_send_frame(&min_ctx, min_id, buffer, stream.bytes_written);
 }
 
-#define comm_queue_response(type, id, payload)                                 \
-    _comm_queue_response(id, payload, type##_fields)
+#define comm_send_response(type, id, payload)                                  \
+    _comm_send_response(id, payload, type##_fields)
 
-void comm_queue_response_basic(uint8_t min_id, COMM_RES res)
+void comm_send_response_basic(uint8_t min_id, COMM_RES res)
 {
     CommCmdBasicRp rp = CommCmdBasicRp_init_default;
     rp.result = res;
-    comm_queue_response(CommCmdBasicRp, min_id, &rp);
+    comm_send_response(CommCmdBasicRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiReadRq &rq)
 {
     CommCmdQspiReadRp rp = CommCmdQspiReadRp_init_default;
     if (rq.len > sizeof(rp.buff.bytes)) {
-        return comm_queue_response_basic(min_id,
-                                         COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
     if ((rq.addr + rq.len) > (1UL << (hqspi.Init.FlashSize + 1UL))) {
-        return comm_queue_response_basic(min_id,
-                                         COMM_RES_ERR_QSPI_OUT_OF_RANGE);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_QSPI_OUT_OF_RANGE);
     }
     rp.addr = rq.addr;
     rp.buff.size = rq.len;
     W25Q_EnableMemoryMappedMode2();
     memcpy(rp.buff.bytes, reinterpret_cast<const void *>(QSPI_BASE + rq.addr),
            rq.len);
-    comm_queue_response(CommCmdQspiReadRp, min_id, &rp);
+    comm_send_response(CommCmdQspiReadRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
@@ -100,19 +98,18 @@ void comm_handle(uint8_t min_id, const CommCmdQspiWriteRq &rq)
     if (HAL_OK != W25Q_WriteMemory(const_cast<uint8_t *>(rq.buff.bytes),
                                    rq.addr, rq.buff.size)) {
         __set_PRIMASK(1);
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_WRITE);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_QSPI_WRITE);
     }
     __set_PRIMASK(1);
-    return comm_queue_response_basic(min_id, COMM_RES_OK);
+    return comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiSectorEraseRq &rq)
 {
     if (HAL_OK != W25Q_EraseSector(rq.addr_start, rq.addr_end)) {
-        return comm_queue_response_basic(min_id,
-                                         COMM_RES_ERR_QSPI_SECTOR_ERASE);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_QSPI_SECTOR_ERASE);
     }
-    return comm_queue_response_basic(min_id, COMM_RES_OK);
+    return comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
@@ -120,10 +117,10 @@ void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
     __set_PRIMASK(0);
     if (HAL_OK != W25Q_Erase_Chip()) {
         __set_PRIMASK(1);
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_QSPI_MASS_ERASE);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_QSPI_MASS_ERASE);
     }
     __set_PRIMASK(1);
-    return comm_queue_response_basic(min_id, COMM_RES_OK);
+    return comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 static lfs_file_t lfs_file;
@@ -132,14 +129,14 @@ void comm_handle(uint8_t min_id, const CommCmdLfsOpenRq &rq)
 {
     CommCmdLfsOpenRp rp = CommCmdLfsOpenRp_init_default;
     rp.result = lfs_file_open(&lfs, &lfs_file, rq.path, rq.flags);
-    comm_queue_response(CommCmdLfsOpenRp, min_id, &rp);
+    comm_send_response(CommCmdLfsOpenRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdLfsCloseRq &rq)
 {
     CommCmdLfsCloseRp rp = CommCmdLfsCloseRp_init_default;
     rp.result = lfs_file_close(&lfs, &lfs_file);
-    comm_queue_response(CommCmdLfsCloseRp, min_id, &rp);
+    comm_send_response(CommCmdLfsCloseRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdLfsReadRq &rq)
@@ -147,14 +144,14 @@ void comm_handle(uint8_t min_id, const CommCmdLfsReadRq &rq)
     CommCmdLfsReadRp rp = CommCmdLfsReadRp_init_default;
     rp.result = lfs_file_read(&lfs, &lfs_file, rp.buff.bytes, rq.len);
     rp.buff.size = rq.len;
-    comm_queue_response(CommCmdLfsReadRp, min_id, &rp);
+    comm_send_response(CommCmdLfsReadRp, min_id, &rp);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdLfsWriteRq &rq)
 {
     CommCmdLfsWriteRp rp = CommCmdLfsWriteRp_init_default;
     rp.result = lfs_file_write(&lfs, &lfs_file, rq.buff.bytes, rq.buff.size);
-    comm_queue_response(CommCmdLfsWriteRp, min_id, &rp);
+    comm_send_response(CommCmdLfsWriteRp, min_id, &rp);
 }
 
 template <typename T>
@@ -164,7 +161,7 @@ void comm_handle(const pb_msgdesc_t *fields, uint8_t min_id,
     T rq;
     pb_istream_t stream = pb_istream_from_buffer(data, size);
     if (!pb_decode(&stream, fields, &rq)) {
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_PARSE_RQ);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_PARSE_RQ);
     }
     comm_handle(min_id, rq);
 }
@@ -193,7 +190,7 @@ extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
 #undef HANDLES
 #undef HANDLE
     default:
-        return comm_queue_response_basic(min_id, COMM_RES_ERR_UNKNOWN_CMD);
+        return comm_send_response_basic(min_id, COMM_RES_ERR_UNKNOWN_CMD);
     }
 }
 
@@ -202,19 +199,18 @@ static bool intercepted = false;
 void comm_handle(uint8_t min_id, const CommCmdInterceptRq &rq)
 {
     intercepted = true;
-    comm_queue_response_basic(min_id, COMM_RES_OK);
+    comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdReleaseRq &rq)
 {
     intercepted = false;
-    comm_queue_response_basic(min_id, COMM_RES_OK);
+    comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 extern "C" void comm_service(uint32_t listen_time_ms)
 {
     min_init_context(&min_ctx, 0);
-    min_transport_reset(&min_ctx, true);
     const uint32_t initial_uptime_ms = min_time_ms();
     while (intercepted || min_time_ms() - initial_uptime_ms < listen_time_ms) {
         uint8_t byte;
