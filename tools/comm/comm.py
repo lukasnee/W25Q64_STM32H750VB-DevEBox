@@ -213,13 +213,17 @@ class Comm:
 def parse_args():
     parser = argparse.ArgumentParser(description='COMM host CLI tool')
     subparsers = parser.add_subparsers(dest='command', help='Sub-command help')
-
-    upload_parser = subparsers.add_parser('upload', help='Upload a file')
-    upload_parser.add_argument(
-        'src_path', type=str, help='Source file path (host)')
-    upload_parser.add_argument(
-        'dst_path', type=str, help='Destination file path (target)', default="boot/app.bin")
-
+   
+    upload_app_parser = subparsers.add_parser('upload_app', help='Upload an application firmware binary to the device')
+    upload_app_parser.add_argument(
+        'fw_path', type=str, help='Application firmware binary file path (host file system)')
+   
+    upload_file_parser = subparsers.add_parser('upload_file', help='Upload a file to the device')
+    upload_file_parser.add_argument(
+        'src_path', type=str, help='Source file path (host file system)')
+    upload_file_parser.add_argument(
+        'dst_path', type=str, help='Destination file path (target file system)')
+   
     parser.add_argument('-D', '--port', type=str,
                         default='/dev/ttyACM0', help='MIN port')
     parser.add_argument('-b,', '--baudrate', type=int,
@@ -233,14 +237,21 @@ def parse_args():
 
 def main():
     args = parse_args()
-    if args.command == "upload":
+    if args.command == "upload_file" or args.command == "upload_app":
         logging.basicConfig(level=args.log_level, filename=args.log_file,
                             format='%(asctime)s|%(levelname)s|%(name)s|%(message)s')
         comm = Comm(args.port, args.baudrate)
         comm.capture_bootloader(10.0)
+    if args.command == "upload_app":
+        comm.upload_file(args.fw_path, "boot/app.bin")
+        comm.release_bootloader()
+        return
+    elif args.command == "upload_file":
         comm.upload_file(args.src_path, args.dst_path)
         comm.release_bootloader()
         return
+
+        
     raise Exception("Invalid command")
 
 

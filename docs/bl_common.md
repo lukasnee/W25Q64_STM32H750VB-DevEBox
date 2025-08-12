@@ -35,26 +35,26 @@ Install [JLink software](https://www.segger.com/downloads/jlink/#J-LinkSoftwareA
 JLinkExe -CommandFile flash.jlink
 ```
 
-## Flashing Application
+## Uploading Application Firmware
 
 Reset the board and within 3 seconds run the following command:
 
 ```bash
-.venv/bin/python3 tools/comm/comm.py <app_bin>
+.venv/bin/python3 tools/comm/comm.py upload_app <fw_path>
 ```
 
-> E.g.: `python3 tools/comm/comm.py
+> E.g.: `.venv/bin/python3 tools/comm/comm.py upload_app
 > ../m8ec/.build/platform/STM32H750/STM32H750.bin`
 
 If you have an SWD debugger connected to the board with a reset pin, you can run
 this without the need to reset the board:
 
 ```bash
-st-flash reset && sleep 1 && .venv/bin/python3 tools/comm/comm.py <app_bin>
+st-flash reset && sleep 1 && .venv/bin/python3 tools/comm/comm.py upload_app <fw_path>
 ```
 
-> E.g.: `st-flash reset && sleep 1 && python3 tools/comm/comm.py
-> ../m8ec/.build/platform/STM32H750/STM32H750.bin`
+> E.g.: `st-flash reset && sleep 1 && .venv/bin/python3 tools/comm/comm.py
+> upload_app ../m8ec/.build/platform/STM32H750/STM32H750.bin`
 
 ## Debugging in VSCode
 
