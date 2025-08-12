@@ -32,7 +32,7 @@ libraries that you can find referenced below.
   for this board for accessing the on-board W25Q64 QSPI FLASH memory in
   [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
-## TODO
+## TODO List
 
 - Generalize and extract the `comm` service to a separate library.
 - Add [littlefs](https://github.com/littlefs-project/littlefs) to `bl_iram`
@@ -47,6 +47,6 @@ libraries that you can find referenced below.
 - Add copies of datasheet PDFs of MCU and QSPI FLASH to the `docs` folder.
 - Pick a better name for the project.
 
-# References
+## References
 
 - [stm32-base STM32H750VB-DevEBox](https://stm32-base.org/boards/STM32H750VBT6-STM32H7XX-M.html#W25Q64JV)
