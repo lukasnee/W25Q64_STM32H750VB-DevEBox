@@ -3,33 +3,20 @@
 `bl_iram` and `bl_qspiflash` share a common codebase and build system.
 Therefore, most of the instructions are the same for both bootloaders.
 
-## Prerequisites
-
-```bash
-sudo apt-get update && sudo apt-get -y upgrade
-python3 -m venv .venv
-.venv/bin/pip install --upgrade pip setuptools
-.venv/bin/pip install -r requirements.txt
-```
-> [!Note]
+> [!Attention]
 >
-> You can also run `source .venv/bin/activate.fish` for fish shell or `source
-> .venv/bin/activate` for bash/zsh to activate the virtual environment in your
-> current terminal session so you don't have to prefix every `python` or `pip`
-> command with `.venv/bin/`.
+> Make sure you have the environment set up correctly as described in the
+> [Environment Setup](env_setup.md).
 
 ## Flashing Bootloader
 
 Using ST-LINK/V2 via SWD:
 
 ```bash
-sudo apt install stlink-tools
 st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex
 ```
 
 Using J-Link via SWD:
-
-Install [JLink software](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
 
 ```bash
 JLinkExe -CommandFile flash.jlink
