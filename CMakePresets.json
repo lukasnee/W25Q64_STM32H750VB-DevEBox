@@ -1,0 +1,6 @@
+{
+    "version": 10,
+    "include": [
+        "cmake/presets/STM32H750.json"
+    ]
+}
