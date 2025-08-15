@@ -137,7 +137,7 @@ uint32_t crc32(const void *buf, size_t size)
     return crc ^ ~0U;
 }
 
-void jump_to_app(const uint32_t address)
+void jump_to_firmware(const uint32_t address)
 {
     __disable_irq();
     SysTick->CTRL = 0;
@@ -282,7 +282,7 @@ int main(void)
 #define APP_BASE QSPI_BASE
 #endif
 
-    jump_to_app(APP_BASE);
+    jump_to_firmware(APP_BASE);
     // should never reach here
 #endif
 
