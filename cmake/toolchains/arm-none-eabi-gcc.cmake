@@ -68,3 +68,34 @@ set(compiler_flags_release " -O1")
 set(CMAKE_C_FLAGS_RELEASE_INIT ${compiler_flags_release})
 set(CMAKE_CXX_FLAGS_RELEASE_INIT ${compiler_flags_release})
 set(CMAKE_ASM_FLAGS_RELEASE_INIT ${compiler_flags_release})
+
+function(generate_firmware_artifacts exec_target_name)
+  target_link_options(
+    ${exec_target_name} PUBLIC
+    -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${exec_target_name}.map -Wl,--cref
+  )
+  file(RELATIVE_PATH dir ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+  add_custom_command(
+    TARGET ${exec_target_name}
+    POST_BUILD
+    COMMAND arm-none-eabi-size ${exec_target_name}
+    COMMAND echo "Generating firmware artifacts:"
+    COMMAND echo "${dir}/${exec_target_name}.map"
+    COMMAND ${CMAKE_OBJCOPY} -O ihex ${exec_target_name} ${exec_target_name}.hex
+    COMMAND echo "${dir}/${exec_target_name}.hex"
+    COMMAND ${CMAKE_OBJCOPY} -O binary ${exec_target_name}
+            ${exec_target_name}.bin
+    COMMAND echo "${dir}/${exec_target_name}.bin"
+    COMMAND ${CMAKE_OBJDUMP} -S -t ${exec_target_name} >
+            ${exec_target_name}.dump
+    COMMAND echo "${dir}/${exec_target_name}.dump"
+    COMMAND ${CMAKE_NM} ${exec_target_name} -C -n -S -s >
+            ${exec_target_name}.address-sort.nm
+    COMMAND echo "${dir}/${exec_target_name}.address-sort.nm"
+    COMMAND ${CMAKE_NM} ${exec_target_name} -C -S -s --size-sort >
+            ${exec_target_name}.size-sort.nm
+    COMMAND echo "${dir}/${exec_target_name}.size-sort.nm"
+    COMMAND ${CMAKE_NM} -lnC ${exec_target_name} > ${exec_target_name}.symbols
+    COMMAND echo "${dir}/${exec_target_name}.symbols"
+  )
+endfunction()
