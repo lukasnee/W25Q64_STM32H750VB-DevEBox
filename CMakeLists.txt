@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(W25Q64_STM32H750VB-DevEBox)
+project(STM32H7-DevEBox)
 
 # Currently the intended way of building this project is using makefile. Some
 # parts of the project can be built using CMake as libraries for external use.

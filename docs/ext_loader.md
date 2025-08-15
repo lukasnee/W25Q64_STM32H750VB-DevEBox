@@ -14,13 +14,13 @@ so I made one. Kudos to [manoloaterol/MCUDEV_DevEBox_H743-W25Q64-EL](https://git
 
 ```bash
 make VARIANT=ext_loader
-mv build/ext_loader.elf build/W25Q64_STM32H750VB-DevEBox.stldr
+mv build/ext_loader.elf build/STM32H7-DevEBox.stldr
 ```
 
 ## Usage in CLI
 
 ```powershell
-STM32_Programmer_CLI.exe --extload build\W25Q64_STM32H750VB-DevEBox.stldr -c port=swd -w <path_to_app_hex> -rst
+STM32_Programmer_CLI.exe --extload build\STM32H7-DevEBox.stldr -c port=swd -w <path_to_app_hex> -rst
 ```
 
 ## Installation for Use in STM32CubeProgrammer (GUI)
@@ -29,7 +29,7 @@ STM32_Programmer_CLI.exe --extload build\W25Q64_STM32H750VB-DevEBox.stldr -c por
    STM32CubeProgrammer installation directory.
 
     ```powershell
-    cp build\W25Q64_STM32H750VB-DevEBox.stldr C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\ExternalLoader\
+    cp build\STM32H7-DevEBox.stldr C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin\ExternalLoader\
     ```
 
 2. Reopen STM32CubeProgrammer and you should see the loader in the list.
