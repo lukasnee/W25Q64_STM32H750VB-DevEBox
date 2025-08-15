@@ -5,41 +5,44 @@
 
 ---
 
-This is an experimental project aimed to unleash the potential of a cheap
-STM32H750VB-DevEBox development board with W25Q64 QSPI FLASH and be a great
-platform for any kind of embedded project. The project is in the early stage and
-still finding its shape. It incorporates and demonstrates some great open-source
-libraries that you can find referenced below.
+This project implements multiple different mode bootloaders for the STM32H750VB
+DevEBox development board with W25Q64 (64 Mbit) QSPI FLASH and integrates
+various middleware to unleash the potential of the board.
 
 > Project is developed on WSL Ubuntu.
 
-## Features
+## Bootloaders
 
-- `comm`: A simple Point-to-Point communication protocol for accessing the
-  on-board QSPI FLASH via UART from a host computer in Python. `comm` is based
-  on the [`min`](https://github.com/min-protocol/min) and
-  [`nanopb`](https://github.com/nanopb/nanopb).
-- [`bl_iram`](docs/bl_iram.md): Bootloader that loads a program from the QSPI
-  flash to the internal D1 domain 512 KiB AXI-SRAM and executes it. Bootloader
-  on startup runs the `comm` service that allows you to upload a new firmware
-  via UART from a host computer.
+- [`bl_iram`](docs/bl_iram.md): Bootloader that loads an application firmware
+  from a file system that is mounted on the QSPI flash to the internal D1 domain
+  512 KiB AXI-SRAM and executes it. On startup, bootloader runs the
+  [`comm`](#comm) service for uploading new firmware over UART.
 - [`bl_qspiflash`](docs/bl_qspiflash.md): Bootloader that Executes In Place
-  (XIP) program stored on QSPI flash memory. Bootloader on startup runs the
-  `comm` service that allows you to upload a new firmware via UART from a host
-  computer.
+  (XIP) program stored on QSPI flash memory. On startup, bootloader runs the
+  [`comm`](#comm) service for uploading new firmware over UART.
 - [`ext_loader`](docs/ext_loader.md): Special [STM32 External
   Loader](https://github.com/STMicroelectronics/stm32-external-loader) firmware
   for this board for accessing the on-board W25Q64 QSPI FLASH memory in
   [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html).
 
+## Special Features
+
+### `comm`
+
+`comm` is a complete Point-to-Point request-response communication system for
+accessing QSPI FLASH memory on the target from a host computer over serial UART.
+`comm` defines request-response messages both for raw memory and file system
+access ([`littlefs`](https://github.com/littlefs-project/littlefs)). `comm`
+ implements both a service for baremetal MCU target in C/C++ and a client
+library in Python for the host computer that together enable communication over
+serial UART. `comm` is based on [`nanopb`](https://github.com/nanopb/nanopb)
+data serialization library (Protocol Buffers) and
+[`min`](https://github.com/min-protocol/min) Point-to-Point communication
+protocol.
+
 ## TODO List
 
 - Generalize and extract the `comm` service to a separate library.
-- Add [littlefs](https://github.com/littlefs-project/littlefs) to `bl_iram`
-  bootloader where the QSPI FLASH is used as a file system. You can access the
-  file system via the `comm` interface (UART). The bootloader expects a file
-  `app.bin` in the root directory of the file system. The bootloader will load
-  the file to the internal RAM and execute it.
 - Use CMake for building the project rather than Makefile.
 - `bl_iram` and `bl_qspiflash` tests with simple demo application binaries.
 - Add example `.ld` linker scripts for `bl_iram` and `bl_qspiflash`
