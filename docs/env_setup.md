@@ -13,7 +13,7 @@ These are the tools required for building the firmware:
 
     ```bash
     sudo apt update && sudo apt upgrade -y
-    sudo apt install -y git ninja-build
+    sudo apt install -y git ninja-build nanopb
     ```
 
 2. Install CMake. Note that running `sudo apt install cmake` may install an
@@ -84,7 +84,7 @@ ST-LINK).
 
 ## Python Virtual Environment
 
-We need a Python virtual environment for protobuf generation and
+We need a Python virtual environment for
 [`tools/comm/comm.py`](../tools/comm/comm.py) library.
 
 ```bash
