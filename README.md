@@ -42,6 +42,7 @@ protocol.
 
 ## TODO List
 
+- Use [`stm32-base`](https://github.com/ObKo/stm32-cmake).
 - Generalize and extract the `comm` service to a separate library.
 - Use CMake for building the project rather than Makefile.
 - `bl_iram` and `bl_qspiflash` tests with simple demo application binaries.
