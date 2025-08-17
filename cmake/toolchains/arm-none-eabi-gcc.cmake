@@ -42,18 +42,18 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_CXX_COMPILER_WORKS 1)
 
-set(compiler_flags "-fstack-usage -fdata-sections -ffunction-sections -g")
-
-string(APPEND CMAKE_C_FLAGS " ${compiler_flags}")
-string(APPEND CMAKE_CXX_FLAGS
-       " ${compiler_flags} -fno-rtti -fno-exceptions -fno-threadsafe-statics"
+set(compiler_flags
+    "--specs=nosys.specs -fstack-usage -fdata-sections -ffunction-sections -g"
 )
-string(APPEND CMAKE_ASM_FLAGS " ${compiler_flags} -x assembler-with-cpp")
-string(
-  APPEND
-  CMAKE_EXE_LINKER_FLAGS
-  " --specs=nosys.specs -static -Wl,--gc-sections -Wl,--print-memory-usage -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group"
-  # -Wl,--verbose -Wl,--trace
+
+set(CMAKE_C_FLAGS " ${compiler_flags}")
+set(CMAKE_CXX_FLAGS
+    " ${compiler_flags} -fno-rtti -fno-exceptions -fno-threadsafe-statics"
+)
+set(CMAKE_ASM_FLAGS " ${compiler_flags} -x assembler-with-cpp")
+set(CMAKE_EXE_LINKER_FLAGS
+    " -static -Wl,--gc-sections -Wl,--print-memory-usage -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group"
+    # -Wl,--verbose -Wl,--trace -u _scanf_float
 )
 
 # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
