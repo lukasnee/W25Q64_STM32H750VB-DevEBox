@@ -4,7 +4,7 @@
         {
             "name": "build_dir",
             "hidden": true,
-            "binaryDir": ".build"
+            "binaryDir": "${sourceDir}/.build"
         },
         {
             "name": "ninja",

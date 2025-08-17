@@ -7,10 +7,11 @@
         {
             "name": "toolchain-STM32H750",
             "hidden": true,
-            "toolchainFile": "${fileDir}/../toolchains/arm-none-eabi-gcc.STM32H750.cmake"
+            "toolchainFile": "${sourceDir}/cmake/toolchains/arm-none-eabi-gcc.STM32H750.cmake"
         },
         {
             "name": "STM32H750-dbg",
+            "hidden": true,
             "inherits": [
                 "build_dir",
                 "ninja",
@@ -20,49 +21,12 @@
         },
         {
             "name": "STM32H750-rel",
+            "hidden": true,
             "inherits": [
                 "build_dir",
                 "ninja",
                 "rel",
                 "toolchain-STM32H750"
-            ]
-        }
-    ],
-    "buildPresets": [
-        {
-            "name": "STM32H750-dbg",
-            "configurePreset": "STM32H750-dbg"
-        },
-        {
-            "name": "STM32H750-rel",
-            "configurePreset": "STM32H750-rel"
-        }
-    ],
-    "workflowPresets": [
-        {
-            "name": "STM32H750-dbg",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "STM32H750-dbg"
-                },
-                {
-                    "type": "build",
-                    "name": "STM32H750-dbg"
-                }
-            ]
-        },
-        {
-            "name": "STM32H750-rel",
-            "steps": [
-                {
-                    "type": "configure",
-                    "name": "STM32H750-rel"
-                },
-                {
-                    "type": "build",
-                    "name": "STM32H750-rel"
-                }
             ]
         }
     ]
