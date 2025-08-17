@@ -31,9 +31,7 @@ target_sources(
 
 target_include_directories(STM32H7xx_HAL PUBLIC Inc Inc/Legacy)
 
-target_compile_definitions(
-  STM32H7xx_HAL PUBLIC -DUSE_HAL_DRIVER -DSTM32H750xx -DSTM32H7
-)
+target_compile_definitions(STM32H7xx_HAL PUBLIC USE_HAL_DRIVER STM32H7)
 
 target_compile_options(STM32H7xx_HAL PRIVATE -Wno-unused-parameter)
 
