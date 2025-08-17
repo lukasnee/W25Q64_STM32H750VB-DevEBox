@@ -71,8 +71,11 @@ set(CMAKE_ASM_FLAGS_RELEASE_INIT ${compiler_flags_release})
 
 function(generate_firmware_artifacts exec_target_name)
   target_link_options(
-    ${exec_target_name} PUBLIC
-    -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${exec_target_name}.map -Wl,--cref
+    ${exec_target_name}
+    PUBLIC
+    -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${exec_target_name}.map
+    -Wl,--cref
+    -Wl,--no-warn-rwx-segment
   )
   file(RELATIVE_PATH dir ${PROJECT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
   add_custom_command(
