@@ -7,7 +7,7 @@
 
 #include "stm32h7xx_hal.h"
 
-#include "min.h"
+#include "target/min.h"
 #include "lfsapp/lfsapp.h"
 
 #include "quadspi.h"
@@ -23,10 +23,12 @@ struct min_context min_ctx;
 
 extern "C" void min_tx_start(uint8_t port)
 {
+    (void)port;
 }
 
 extern "C" void min_tx_finished(uint8_t port)
 {
+    (void)port;
 }
 
 extern "C" uint16_t min_tx_space(uint8_t port)
@@ -114,6 +116,7 @@ void comm_handle(uint8_t min_id, const CommCmdQspiSectorEraseRq &rq)
 
 void comm_handle(uint8_t min_id, const CommCmdQspiMassEraseRq &rq)
 {
+    (void)rq;
     __set_PRIMASK(0);
     if (HAL_OK != W25Q_Erase_Chip()) {
         __set_PRIMASK(1);
@@ -134,6 +137,7 @@ void comm_handle(uint8_t min_id, const CommCmdLfsOpenRq &rq)
 
 void comm_handle(uint8_t min_id, const CommCmdLfsCloseRq &rq)
 {
+    (void)rq;
     CommCmdLfsCloseRp rp = CommCmdLfsCloseRp_init_default;
     rp.result = lfs_file_close(&lfs, &lfs_file);
     comm_send_response(CommCmdLfsCloseRp, min_id, &rp);
@@ -169,6 +173,7 @@ void comm_handle(const pb_msgdesc_t *fields, uint8_t min_id,
 extern "C" void min_application_handler(uint8_t min_id, uint8_t const *data,
                                         uint8_t size, uint8_t port)
 {
+    (void)port;
     switch (min_id) {
 #define HANDLE(cmd, type)                                                      \
     case cmd:                                                                  \
@@ -198,12 +203,14 @@ static bool intercepted = false;
 
 void comm_handle(uint8_t min_id, const CommCmdInterceptRq &rq)
 {
+    (void)rq;
     intercepted = true;
     comm_send_response_basic(min_id, COMM_RES_OK);
 }
 
 void comm_handle(uint8_t min_id, const CommCmdReleaseRq &rq)
 {
+    (void)rq;
     intercepted = false;
     comm_send_response_basic(min_id, COMM_RES_OK);
 }

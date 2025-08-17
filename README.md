@@ -9,7 +9,8 @@ This project implements multiple different mode bootloaders for the STM32H750VB
 DevEBox development board with W25Q64 (64 Mbit) QSPI FLASH and integrates
 various middleware to unleash the potential of the board.
 
-> Project is developed on WSL Ubuntu.
+Project is originally developed on Linux (WSL Ubuntu). See the [Development
+Guide](DEVELOPMENT.md) for instructions on how to build and use the bootloaders.
 
 ## Bootloaders
 
@@ -44,7 +45,6 @@ protocol.
 
 - Use [`stm32-base`](https://github.com/ObKo/stm32-cmake).
 - Generalize and extract the `comm` service to a separate library.
-- Use CMake for building the project rather than Makefile.
 - `bl_iram` and `bl_qspiflash` tests with simple demo application binaries.
 - Add copies of datasheet PDFs of MCU and QSPI FLASH to the `docs` folder.
 - Pick a better name for the project.

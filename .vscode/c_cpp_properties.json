@@ -1,24 +1,9 @@
 {
     "configurations": [
         {
-            "name": "Linux",
-            "includePath": [
-                "${workspaceFolder}/.",
-                "Core/Inc",
-                "Drivers/STM32H7xx_HAL_Driver/Inc",
-                "Drivers/STM32H7xx_HAL_Driver/Inc/Legacy",
-                "Drivers/CMSIS/Device/ST/STM32H7xx/Include",
-                "Drivers/CMSIS/Include",
-                "extern/min/target",
-                "Core/comm/include",
-                "extern/nanopb",
-                "extern/littlefs"
-            ],
-            "defines": [
-                "VARIANT_BL_IRAM",
-                "QUADSPI"
-            ],
-            "intelliSenseMode": "linux-gcc-x64"
+            "name": "CMake",
+            "compileCommands": "${config:cmake.buildDirectory}/compile_commands.json",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

@@ -96,7 +96,7 @@ int Write(uint32_t Address, uint32_t Size, uint8_t *buffer)
 int Read(uint32_t Address, uint32_t Size, uint8_t *Buffer)
 {
 
-    int i = 0;
+    uint32_t i = 0;
 
     W25Q_EnableMemoryMappedMode();
 
@@ -203,7 +203,7 @@ uint32_t CheckSum(uint32_t StartAddress, uint32_t Size, uint32_t InitVal)
 {
     uint8_t missalignementAddress = StartAddress % 4;
     uint8_t missalignementSize = Size;
-    int cnt;
+    uint32_t cnt;
     uint32_t Val;
 
     StartAddress -= StartAddress % 4;

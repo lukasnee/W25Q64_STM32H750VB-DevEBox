@@ -1,5 +1,5 @@
 
-# Environment Setup
+# Development Environment
 
 Building, flashing and debugging the firmware requires a specific environment
 setup. Please follow the following sections to set up your development

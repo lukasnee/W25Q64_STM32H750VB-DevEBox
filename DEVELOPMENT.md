@@ -1,19 +1,27 @@
-# Common Bootloader Instructions
+# Development Guide
 
-`bl_iram` and `bl_qspiflash` share a common codebase and build system.
-Therefore, most of the instructions are the same for both bootloaders.
+Make sure you have the right [Development Environment](docs/dev_env.md). Once
+that is covered, you can build all bootloaders with a single CMake workflow
+command:
 
-> [!Attention]
->
-> Make sure you have the environment set up correctly as described in the
-> [Environment Setup](env_setup.md).
+```bash
+cmake --workflow STM32H7-DevEBox-dbg
+```
+
+Next, see the bootloader-specific documentation:
+
+- [`bl_iram`](docs/bl_iram.md).
+- [`bl_qspiflash`](docs/bl_qspiflash.md).
+- [`ext_loader`](docs/ext_loader.md).
+
+The rest of the sections below are common for all bootloaders.
 
 ## Flashing Bootloader
 
 Using ST-LINK/V2 via SWD:
 
 ```bash
-st-flash --format ihex --reset write .build/bl_iram/bl_iram.hex
+st-flash --format ihex --reset write .build/Core/bl_iram.hex
 ```
 
 Using J-Link via SWD:
@@ -48,5 +56,5 @@ st-flash reset && sleep 1 && .venv/bin/python3 tools/comm/comm.py upload_app <fw
 You can debug your application together with the bootloader in VSCode using
 ST-LINK/V2 via SWD, openOCD and `cortex-debug` extension. Add your application
 ELF path to the `symbolFiles` list of the `bl_iram`
-[launch.json](../.vscode/launch.json) configuration and start debugging by
+[launch.json](.vscode/launch.json) configuration and start debugging by
 hitting `F5`.

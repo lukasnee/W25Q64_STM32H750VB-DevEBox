@@ -5,94 +5,52 @@
     ],
     "configurePresets": [
         {
-            "name": "EXT_LOADER-dbg",
+            "name": "STM32H7-DevEBox-dbg",
             "inherits": [
                 "STM32H750-dbg"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "EXT_LOADER"
-            }
+            ]
         },
         {
-            "name": "EXT_LOADER-rel",
+            "name": "STM32H7-DevEBox-rel",
             "inherits": [
                 "STM32H750-rel"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "EXT_LOADER"
-            }
-        },
-        {
-            "name": "BL_QSPIFLASH-dbg",
-            "inherits": [
-                "STM32H750-dbg"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "BL_QSPIFLASH"
-            }
-        },
-        {
-            "name": "BL_QSPIFLASH-rel",
-            "inherits": [
-                "STM32H750-rel"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "BL_QSPIFLASH"
-            }
-        },
-        {
-            "name": "BL_IRAM-dbg",
-            "inherits": [
-                "STM32H750-dbg"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "BL_IRAM"
-            }
-        },
-        {
-            "name": "BL_IRAM-rel",
-            "inherits": [
-                "STM32H750-rel"
-            ],
-            "cacheVariables": {
-                "FW_VARIANT": "BL_IRAM"
-            }
+            ]
         }
     ],
     "buildPresets": [
         {
-            "name": "EXT_LOADER-dbg",
-            "configurePreset": "EXT_LOADER-dbg"
+            "name": "STM32H7-DevEBox-dbg",
+            "configurePreset": "STM32H7-DevEBox-dbg"
         },
         {
-            "name": "EXT_LOADER-rel",
-            "configurePreset": "EXT_LOADER-rel"
+            "name": "STM32H7-DevEBox-rel",
+            "configurePreset": "STM32H7-DevEBox-rel"
         }
     ],
     "workflowPresets": [
         {
-            "name": "EXT_LOADER-dbg",
+            "name": "STM32H7-DevEBox-dbg",
             "steps": [
                 {
                     "type": "configure",
-                    "name": "EXT_LOADER-dbg"
+                    "name": "STM32H7-DevEBox-dbg"
                 },
                 {
                     "type": "build",
-                    "name": "EXT_LOADER-dbg"
+                    "name": "STM32H7-DevEBox-dbg"
                 }
             ]
         },
         {
-            "name": "EXT_LOADER-rel",
+            "name": "STM32H7-DevEBox-rel",
             "steps": [
                 {
                     "type": "configure",
-                    "name": "EXT_LOADER-rel"
+                    "name": "STM32H7-DevEBox-rel"
                 },
                 {
                     "type": "build",
-                    "name": "EXT_LOADER-rel"
+                    "name": "STM32H7-DevEBox-rel"
                 }
             ]
         }

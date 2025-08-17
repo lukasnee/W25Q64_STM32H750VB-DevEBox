@@ -60,18 +60,6 @@ void SystemClock_Config(void);
 #include <string.h>
 
 #ifdef VARIANT_EXT_LOADER
-#warning "VARIANT_EXT_LOADER"
-#endif
-
-#ifdef VARIANT_BL_IRAM
-#warning "VARIANT_BL_IRAM"
-#endif
-
-#ifdef VARIANT_BL_QSPIFLASH
-#warning "VARIANT_BL_QSPIFLASH"
-#endif
-
-#ifdef VARIANT_EXT_LOADER
 #define SECTORS_COUNT 100
 #endif
 
