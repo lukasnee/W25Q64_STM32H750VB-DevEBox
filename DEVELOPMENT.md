@@ -21,13 +21,14 @@ The rest of the sections below are common for all bootloaders.
 Using ST-LINK/V2 via SWD:
 
 ```bash
-st-flash --format ihex --reset write .build/Core/bl_iram.hex
+st-flash --format ihex --reset write .build/Core/<BOOTLOADER_NAME>.hex
+
 ```
 
 Using J-Link via SWD:
 
 ```bash
-JLinkExe -CommandFile flash.jlink
+JLinkExe -CommandFile flash.<BOOTLOADER_NAME>.jlink
 ```
 
 ## Uploading Application Firmware

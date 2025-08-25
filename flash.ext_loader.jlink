@@ -1,0 +1,9 @@
+ExitOnError 1
+Device STM32H750VB
+Speed 4000
+SelectInterface SWD
+Connect
+LoadFile .build/ext_loader/ext_loader.hex
+Reset
+Go
+Exit
