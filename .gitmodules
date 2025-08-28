@@ -7,3 +7,6 @@
 [submodule "extern/littlefs"]
 	path = extern/littlefs
 	url = https://github.com/littlefs-project/littlefs.git
+[submodule "extern/ln"]
+	path = extern/ln
+	url = https://github.com/lukasnee/ln.git
