@@ -3,6 +3,8 @@
 #include "lfs.h"
 #include "quadspi.h"
 
+#include "ln/syscalls/littlefs.h"
+
 extern QSPI_HandleTypeDef hqspi;
 
 const uint32_t qspi_flash_lfs_partition_base = QSPI_BASE;
@@ -79,6 +81,7 @@ int lfsapp_init(void)
         }
         err = lfs_mount(&lfs, &lfs_cfg);
     }
+    ln_syscalls_littlefs_set_lfs(&lfs);
     return err;
 }
 

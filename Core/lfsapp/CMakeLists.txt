@@ -4,6 +4,6 @@ target_sources(lfsapp_W25Q64 PRIVATE lfsapp_W25Q64.c)
 target_include_directories(lfsapp_W25Q64 PUBLIC include)
 target_link_libraries(
   lfsapp_W25Q64
-  PUBLIC littlefs
+  PUBLIC littlefs ln::syscalls::littlefs
   PRIVATE W25Q64
 )

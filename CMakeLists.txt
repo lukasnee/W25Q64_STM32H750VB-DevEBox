@@ -13,10 +13,10 @@ if(PROJECT_IS_TOP_LEVEL)
   include(cmake/config.cmake)
 endif()
 
+add_subdirectory(extern/ln)
+
 add_subdirectory(Drivers/CMSIS)
 add_subdirectory(Drivers/STM32H7xx_HAL_Driver)
-
-include(cmake/littlefs.cmake)
 
 # The W25Q64 QSPI 8MB FLASH driver
 add_library(W25Q64)
