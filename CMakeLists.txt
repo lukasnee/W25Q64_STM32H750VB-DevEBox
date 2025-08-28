@@ -13,10 +13,6 @@ if(PROJECT_IS_TOP_LEVEL)
   include(cmake/config.cmake)
 endif()
 
-# Currently the intended way of building this project is using makefile. Some
-# parts of the project can be built using CMake as libraries for external use.
-# TODO: migrate the project to CMake completely.
-
 add_subdirectory(Drivers/CMSIS)
 add_subdirectory(Drivers/STM32H7xx_HAL_Driver)
 
