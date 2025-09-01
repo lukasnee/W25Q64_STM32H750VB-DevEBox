@@ -17,6 +17,9 @@ add_subdirectory(extern/ln)
 
 add_subdirectory(Drivers/CMSIS)
 add_subdirectory(Drivers/STM32H7xx_HAL_Driver)
+if(LN_FREERTOS)
+  add_subdirectory(Middlewares/Third_Party/FreeRTOS)
+endif()
 
 # The W25Q64 QSPI 8MB FLASH driver
 add_library(W25Q64)

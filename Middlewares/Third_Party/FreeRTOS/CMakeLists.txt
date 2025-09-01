@@ -1,0 +1,4 @@
+add_library(CMSIS_RTOS_V2)
+target_include_directories(CMSIS_RTOS_V2 PUBLIC Source/CMSIS_RTOS_V2)
+target_link_libraries(CMSIS_RTOS_V2 PUBLIC CMSIS freertos_kernel STM32H7xx_HAL)
+target_sources(CMSIS_RTOS_V2 PRIVATE Source/CMSIS_RTOS_V2/cmsis_os2.c)
