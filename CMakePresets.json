@@ -1,19 +1,26 @@
 {
     "version": 10,
     "include": [
-        "cmake/presets/STM32H750.json"
+        "extern/ln/cmake/presets/STM32H750.json"
     ],
     "configurePresets": [
         {
+            "name": "toolchain",
+            "hidden": true,
+            "toolchainFile": "extern/ln/cmake/toolchains/arm-none-eabi-gcc.STM32H750.cmake"
+        },
+        {
             "name": "STM32H7-DevEBox-dbg",
             "inherits": [
-                "STM32H750-dbg"
+                "STM32H750-dbg",
+                "toolchain"
             ]
         },
         {
             "name": "STM32H7-DevEBox-rel",
             "inherits": [
-                "STM32H750-rel"
+                "STM32H750-rel",
+                "toolchain"
             ]
         }
     ],
